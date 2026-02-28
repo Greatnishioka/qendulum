@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Routerの書き方ちょっと面白い
+// ルートURLにアクセスしたとき、Inertiaを使ってHomeコンポーネントをレンダリングしてる
+Route::get('/', fn () => Inertia::render('Home'));
