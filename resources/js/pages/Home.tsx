@@ -22,7 +22,7 @@ export default function Home({ query, feed }: HomeProps) {
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    form.get("/", {
+    form.get("/api/v1/search", {
       preserveState: true,
       replace: true,
     });
