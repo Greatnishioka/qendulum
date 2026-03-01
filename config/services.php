@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'arxiv' => [
+        'url' => env('ARXIV_API_URL', 'https://export.arxiv.org/api/query'),
+        'cache_ttl_seconds' => (int) env('ARXIV_CACHE_TTL_SECONDS', 600),
+        'min_interval_seconds' => (int) env('ARXIV_MIN_INTERVAL_SECONDS', 3),
+        'default_max_results' => (int) env('ARXIV_DEFAULT_MAX_RESULTS', 10),
+    ],
+
 ];
