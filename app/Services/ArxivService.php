@@ -23,6 +23,7 @@ class ArxivService
             return $this->emptyFeed();
         }
 
+        // キャッシュキーの作成
         $cacheKey = sprintf(
             'arxiv:search:%s:%d:%d',
             sha1($query),
