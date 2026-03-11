@@ -22,7 +22,7 @@ export default function Header({ query }: props) {
     return (
         <header className="bg-[repeating-linear-gradient(45deg,#E3E3E3_0px,#E3E3E3_1px,#FFFFFF_1px,#FFFFFE_4px)] px-20">
             <div className="rounded-b-full border border-(--color-dark) bg-(--color-light) pt-4 pb-3 h-full flex items-center justify-center">
-                <div className="rounded-full border border-[#9B9B9B] bg-white p-1 max-w-xl w-full">
+                <div className="rounded-full border border-[#9B9B9B] bg-white p-1 max-w-3xl w-full">
                     <label htmlFor="query" className="sr-only">
 
                     </label>
@@ -32,8 +32,8 @@ export default function Header({ query }: props) {
                             type="text"
                             value={form.data.query}
                             onChange={(event) => form.setData("query", event.target.value)}
-                            className="w-full rounded px-4 py-2"
-                            placeholder="artificial intelligence"
+                            className="w-full rounded px-4 py-2 outline-none"
+                            placeholder="searching ...."
                         />
                         <div className="flex">
                             <button
