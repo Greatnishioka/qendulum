@@ -39,7 +39,7 @@ export default function Header({ query }: props) {
                             <button
                                 type="submit"
                                 disabled={form.processing}
-                                className="rounded-r-full bg-[#2BB2C6] pr-4 py-2 text-white disabled:opacity-60 relative"
+                                className="rounded-r-full bg-[#2BB2C6] pr-4 py-2 text-white disabled:opacity-60 relative z-40"
                             >
                                 <div className="overflow-hidden h-full aspect-square absolute -translate-x-full top-0">
                                     <span className=" inset-0 h-[200%] aspect-square rounded-full bg-[#2BB2C6] block"></span>
@@ -59,8 +59,11 @@ export default function Header({ query }: props) {
                             <button
                                 type="submit"
                                 disabled={form.processing}
-                                className="rounded-r-full bg-zinc-900 pr-4 py-2 text-white disabled:opacity-60 relative"
+                                className="relative rounded-r-full bg-[#E7B84A] pl-6 pr-4 py-2 text-white disabled:opacity-60 z-30"
                             >
+                                <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
+                                    <span className="block h-full aspect-square bg-[#E7B84A]"></span>
+                                </div>
                                 <div className="flex items-center">
                                     <p className="text-[14px] mr-2 whitespace-nowrap">
                                         Fuzzy search
@@ -68,6 +71,20 @@ export default function Header({ query }: props) {
                                     <span className="whitespace-nowrap text-[10px]">
                                         あいまい検索
                                     </span>
+                                </div>
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={form.processing}
+                                className="relative rounded-r-full bg-[#DC3131] pl-6 pr-4 py-2 text-white disabled:opacity-60 z-20"
+                            >
+                                <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
+                                    <span className="block h-full aspect-square bg-[#DC3131]"></span>
+                                </div>
+                                <div className="flex items-center">
+                                    <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.1924 0.707031L5.80273 5.0957L9.89941 9.19238L9.19238 9.89941L5.0957 5.80273L1 9.89941L0.292969 9.19238L4.38867 5.0957L0 0.707031L0.707031 0L5.0957 4.38867L9.48535 0L10.1924 0.707031Z" fill="white" />
+                                    </svg>
                                 </div>
                             </button>
                         </div>
