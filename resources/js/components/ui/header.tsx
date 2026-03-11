@@ -10,6 +10,8 @@ export default function Header({ query }: props) {
         query,
     });
 
+    const buttonDisabled = form.processing || form.data.query.trim() === "";
+
     function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -32,17 +34,17 @@ export default function Header({ query }: props) {
                             type="text"
                             value={form.data.query}
                             onChange={(event) => form.setData("query", event.target.value)}
-                            className="w-full rounded px-4 py-2 outline-none"
+                            className="w-full rounded-l-full px-4 py-2 outline-none"
                             placeholder="searching ...."
                         />
                         <div className="flex">
                             <button
                                 type="submit"
-                                disabled={form.processing}
-                                className="rounded-r-full bg-[#2BB2C6] pr-4 py-2 text-white disabled:opacity-60 relative z-40"
+                                disabled={buttonDisabled}
+                                className="group rounded-r-full bg-[#2BB2C6] pr-4 py-2 text-white disabled:bg-[#666666] transition-colors duration-200 relative z-40"
                             >
                                 <div className="overflow-hidden h-full aspect-square absolute -translate-x-full top-0">
-                                    <span className=" inset-0 h-[200%] aspect-square rounded-full bg-[#2BB2C6] block"></span>
+                                    <span className=" inset-0 h-[200%] aspect-square rounded-full bg-[#2BB2C6] group-disabled:bg-[#666666] transition-colors duration-200 block"></span>
                                 </div>
                                 <div className="flex items-center">
                                     <svg className="mr-1" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,13 +58,15 @@ export default function Header({ query }: props) {
                                     </span>
                                 </div>
                             </button>
+                            {/* あいまい検索はまだまだ実装先そう */}
+                            {/* あいまい検索は自前で育てたAIを使用した多言語 & あいまい検索 */}
                             <button
                                 type="submit"
-                                disabled={form.processing}
-                                className="relative rounded-r-full bg-[#E7B84A] pl-6 pr-4 py-2 text-white disabled:opacity-60 z-30"
+                                disabled={buttonDisabled}
+                                className="group relative rounded-r-full bg-[#E7B84A] pl-6 pr-4 py-2 text-white disabled:bg-[#8F8F8F] transition-colors duration-200 z-30"
                             >
                                 <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
-                                    <span className="block h-full aspect-square bg-[#E7B84A]"></span>
+                                    <span className="block h-full aspect-square bg-[#E7B84A] group-disabled:bg-[#8F8F8F] transition-colors duration-200"></span>
                                 </div>
                                 <div className="flex items-center">
                                     <p className="text-[14px] mr-2 whitespace-nowrap">
@@ -74,12 +78,13 @@ export default function Header({ query }: props) {
                                 </div>
                             </button>
                             <button
-                                type="submit"
-                                disabled={form.processing}
-                                className="relative rounded-r-full bg-[#DC3131] pl-6 pr-4 py-2 text-white disabled:opacity-60 z-20"
+                                onClick={() => form.setData("query", "")}
+                                type="button"
+                                disabled={buttonDisabled}
+                                className="group relative rounded-r-full bg-[#DC3131] pl-6 pr-4 py-2 text-white disabled:bg-[#C1C1C1] transition-colors duration-200 z-20"
                             >
                                 <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
-                                    <span className="block h-full aspect-square bg-[#DC3131]"></span>
+                                    <span className="block h-full aspect-square bg-[#DC3131] group-disabled:bg-[#C1C1C1] transition-colors duration-200"></span>
                                 </div>
                                 <div className="flex items-center">
                                     <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
