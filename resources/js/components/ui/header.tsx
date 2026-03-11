@@ -1,18 +1,19 @@
 import { useForm } from "@inertiajs/react";
+import type { FormEvent } from "react";
 
 type props = {
-    query: string;
+    query?: string;
 };
 
-export default function Header({ query }: props) {
+export default function Header({ query = "" }: props) {
 
     const form = useForm({
         query,
     });
-
+    
     const buttonDisabled = form.processing || form.data.query.trim() === "";
 
-    function submit(event: React.FormEvent<HTMLFormElement>) {
+    function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         form.get("/search", {
@@ -22,7 +23,7 @@ export default function Header({ query }: props) {
     }
 
     return (
-        <header className="bg-[repeating-linear-gradient(45deg,#E3E3E3_0px,#E3E3E3_1px,#FFFFFF_1px,#FFFFFE_4px)] px-20">
+        <header className="fixed w-full bg-[repeating-linear-gradient(45deg,#E3E3E3_0px,#E3E3E3_1px,#FFFFFF_1px,#FFFFFE_4px)] px-20">
             <div className="rounded-b-full border border-(--color-dark) bg-(--color-light) pt-4 pb-3 h-full flex items-center justify-center">
                 <div className="rounded-full border border-[#9B9B9B] bg-white p-1 max-w-3xl w-full">
                     <label htmlFor="query" className="sr-only">
@@ -41,10 +42,10 @@ export default function Header({ query }: props) {
                             <button
                                 type="submit"
                                 disabled={buttonDisabled}
-                                className="group rounded-r-full bg-[#2BB2C6] pr-4 py-2 text-white disabled:bg-[#666666] transition-colors duration-200 relative z-40"
+                                className="group rounded-r-full bg-(--color-turquoise) pr-4 py-2 text-white disabled:bg-[#666666] transition-colors duration-200 relative z-40"
                             >
                                 <div className="overflow-hidden h-full aspect-square absolute -translate-x-full top-0">
-                                    <span className=" inset-0 h-[200%] aspect-square rounded-full bg-[#2BB2C6] group-disabled:bg-[#666666] transition-colors duration-200 block"></span>
+                                    <span className=" inset-0 h-[200%] aspect-square rounded-full bg-(--color-turquoise) group-disabled:bg-[#666666] transition-colors duration-200 block"></span>
                                 </div>
                                 <div className="flex items-center">
                                     <svg className="mr-1" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
