@@ -11,7 +11,6 @@ type props = {
 };
 
 export default function Header({ query = "" }: props) {
-
     const form = useForm({
         query,
     });
@@ -24,25 +23,27 @@ export default function Header({ query = "" }: props) {
             type: "text",
             required: true,
             onChange: (value) => form.setData("query", value),
-        }
+        },
     ];
 
     const buttonList: InputTextButtonProps[] = [
         {
             label: "Search",
-            onClick: () => form.get("/search", {
-                preserveState: true,
-                replace: true,
-            }),
+            onClick: () =>
+                form.get("/search", {
+                    preserveState: true,
+                    replace: true,
+                }),
             isSubmit: true,
             disabled: buttonDisabled,
         },
         {
             label: "Fuzzy search",
-            onClick: () => form.get("/search", {
-                preserveState: true,
-                replace: true,
-            }),
+            onClick: () =>
+                form.get("/search", {
+                    preserveState: true,
+                    replace: true,
+                }),
             isSubmit: true,
             disabled: buttonDisabled,
         },
@@ -51,7 +52,7 @@ export default function Header({ query = "" }: props) {
             onClick: () => form.setData("query", ""),
             isSubmit: false,
             disabled: buttonDisabled,
-        }
+        },
     ];
 
     return (

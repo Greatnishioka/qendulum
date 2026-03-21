@@ -6,11 +6,9 @@ import TextInputBox from "../parts/textInputBox";
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
-type props = {
+type props = {};
 
-};
-
-export default function SideVar({ }: props) {
+export default function SideVar({}: props) {
     const animationMs = 250;
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
@@ -30,7 +28,7 @@ export default function SideVar({ }: props) {
             const rect = loginButtonRef.current.getBoundingClientRect();
 
             setLoginModalPosition({
-                top: rect.top + (rect.height / 2),
+                top: rect.top + rect.height / 2,
                 left: rect.left - 16,
             });
         }
@@ -73,21 +71,22 @@ export default function SideVar({ }: props) {
             type: "password",
             required: true,
             onChange: (value) => form.setData("password", value),
-        }
-    ]
+        },
+    ];
 
     const InputTextButtonProps: InputTextButtonProps[] = [
         {
             label: "ログイン",
-            onClick: () => form.post("/login", {
-                preserveState: true,
-                replace: true,
-                onSuccess: () => {
-                    console.log("login success");
-                },
-            }),
+            onClick: () =>
+                form.post("/login", {
+                    preserveState: true,
+                    replace: true,
+                    onSuccess: () => {
+                        console.log("login success");
+                    },
+                }),
             isSubmit: true,
-        }
+        },
     ];
 
     return (
@@ -97,8 +96,12 @@ export default function SideVar({ }: props) {
                     <div className="p-3 border-stripes border border-(--color-dark)">
                         <div className="px-3 py-12 bg-white border border-(--color-dark) min-h-56 flex flex-col items-center justify-center gap-9">
                             <div className="flex flex-col items-center justify-center gap-4">
-                                <h3 className="text-2xl font-bold text-[#BDBECA]">ログインしていません</h3>
-                                <p className="font-semibold text-[#90919C]">お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。</p>
+                                <h3 className="text-2xl font-bold text-[#BDBECA]">
+                                    ログインしていません
+                                </h3>
+                                <p className="font-semibold text-[#90919C]">
+                                    お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
+                                </p>
                             </div>
                             <div className="relative mt-4 w-full">
                                 <button
@@ -117,7 +120,10 @@ export default function SideVar({ }: props) {
                                             position={loginModalPosition}
                                             isOpen={isOpenLoginModal}
                                         >
-                                            <TextInputBox inputList={InputTextBoxProps} buttonList={InputTextButtonProps} />
+                                            <TextInputBox
+                                                inputList={InputTextBoxProps}
+                                                buttonList={InputTextButtonProps}
+                                            />
                                         </SerifBox>
                                     </div>
                                 ) : null}

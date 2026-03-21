@@ -6,8 +6,13 @@ import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 
 export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
-  tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  eslintConfigPrettier,
+    {
+        files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+        plugins: { js },
+        extends: ["js/recommended"],
+        languageOptions: { globals: globals.browser },
+    },
+    tseslint.configs.recommended,
+    pluginReact.configs.flat.recommended,
+    eslintConfigPrettier,
 ]);

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,15 +6,15 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 :root {
-    --color-light: #F6F6F6;
-    --color-dark: #E3E3E3;
-    --color-turquoise: #2BB2C6;
-
+    --color-light: #f6f6f6;
+    --color-dark: #e3e3e3;
+    --color-turquoise: #2bb2c6;
 }
 
 .sidebar-item {
@@ -31,15 +31,16 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 220ms ease;
-    background:
-        radial-gradient(800px circle at var(--x, 50%) var(--y, 50%),
-            rgba(43, 178, 198, 0.22),
-            rgba(198, 146, 43, 0.40),
-            rgba(198, 43, 43, 0.60),
-            transparent 70%);
+    background: radial-gradient(
+        800px circle at var(--x, 50%) var(--y, 50%),
+        rgba(43, 178, 198, 0.22),
+        rgba(198, 146, 43, 0.4),
+        rgba(198, 43, 43, 0.6),
+        transparent 70%
+    );
 }
 
-.sidebar-item>a {
+.sidebar-item > a {
     position: relative;
     z-index: 1;
     display: block;
@@ -58,11 +59,13 @@
 }
 
 .border-stripes {
-    background: repeating-linear-gradient(45deg,
-            #E3E3E3 0px,
-            #E3E3E3 1px,
-            #FFFFFF 1px,
-            #FFFFFE 4px);
+    background: repeating-linear-gradient(
+        45deg,
+        #e3e3e3 0px,
+        #e3e3e3 1px,
+        #ffffff 1px,
+        #fffffe 4px
+    );
 }
 
 .qendulum-shadow {
