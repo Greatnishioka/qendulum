@@ -14,5 +14,57 @@
     --color-light: #F6F6F6;
     --color-dark: #E3E3E3;
     --color-turquoise: #2BB2C6;
-    
+
+}
+
+.sidebar-item {
+    position: relative;
+    overflow: hidden;
+    background-color: #fff;
+    transition: background-color 220ms ease;
+}
+
+.sidebar-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 220ms ease;
+    background:
+        radial-gradient(800px circle at var(--x, 50%) var(--y, 50%),
+            rgba(43, 178, 198, 0.22),
+            rgba(198, 146, 43, 0.40),
+            rgba(198, 43, 43, 0.60),
+            transparent 70%);
+}
+
+.sidebar-item>a {
+    position: relative;
+    z-index: 1;
+    display: block;
+}
+
+.group:hover .sidebar-item {
+    background-color: #fff;
+}
+
+.group:hover .sidebar-item:hover {
+    background-color: var(--color-light);
+}
+
+.group:hover .sidebar-item:hover::before {
+    opacity: 1;
+}
+
+.border-stripes {
+    background: repeating-linear-gradient(45deg,
+            #E3E3E3 0px,
+            #E3E3E3 1px,
+            #FFFFFF 1px,
+            #FFFFFE 4px);
+}
+
+.qendulum-shadow {
+    box-shadow: 0 0 16px rgba(95, 136, 142, 0.5);
 }

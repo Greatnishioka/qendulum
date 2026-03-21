@@ -62,7 +62,8 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            // user_authを使いたいので、モデルはUserAuthを指定する。
+            'model' => env('AUTH_MODEL', App\Models\User\UserAuth::class),
         ],
 
         // 'users' => [
