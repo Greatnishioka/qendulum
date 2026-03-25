@@ -2,37 +2,33 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Application\Auth\UseCase\LoginUseCase;
+use App\Domain\Auth\Exception\InvalidCredentialsException;
 use App\Http\Controllers\Controller;
-use App\Models\User\UserAuth;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\Auth\LoginResource;
+use App\Http\Responders\Auth\LoginResponder;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    public function __construct(
+        private readonly LoginUseCase $loginUseCase,
+        private readonly LoginResponder $loginResponder,
+    ) {
+    }
+
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(LoginRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
-
-        $userAuth = UserAuth::where('email', $validated['email'])->first();
-
-        if (!$userAuth || !Hash::check($validated['password'], $userAuth->password)) {
-            throw ValidationException::withMessages([
-                'email' => 'メールアドレスまたはパスワードが正しくありません。',
-            ]);
+        try {
+            $userAuth = $this->loginUseCase->__invoke($request->toInputData());
+        } catch (InvalidCredentialsException) {
+            $this->loginResponder->invalidCredentials();
         }
 
-        Auth::guard('web')->login($userAuth, remember: $request->boolean('remember'));
-        $request->session()->regenerate();
-
-        return redirect()->back();
+        return $this->loginResponder->success($request, new LoginResource($userAuth));
     }
 }

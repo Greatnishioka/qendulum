@@ -78,7 +78,7 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                                     onChange={(event) =>
                                         handleInputChange(index, event.target.value)
                                     }
-                                    className={`w-full px-4 py-2 outline-none min-w-52 ${isFirst ? "rounded-l-full" : ""} ${isLast && buttonList.length === 0 ? "rounded-r-full" : ""}`}
+                                    className={`w-full px-4 py-2 outline-none min-w-52 h-full ${isFirst ? "rounded-l-full" : ""} ${isLast && buttonList.length === 0 ? "rounded-r-full" : ""}`}
                                     placeholder={input.placeholder}
                                 />
                             </div>

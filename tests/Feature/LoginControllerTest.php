@@ -83,4 +83,27 @@ class LoginControllerTest extends TestCase
 
         $this->assertGuest('web');
     }
+
+    /**
+     * 仕様:
+     * email と password は必須であり、email はメールアドレス形式でなければならない。
+     */
+    public function test_it_validates_login_input(): void
+    {
+        $response = $this
+            ->from('/')
+            ->post(route('login'), [
+                'email' => 'not-an-email',
+                'password' => '',
+            ]);
+
+        $response
+            ->assertRedirect('/')
+            ->assertSessionHasErrors([
+                'email',
+                'password',
+            ]);
+
+        $this->assertGuest('web');
+    }
 }

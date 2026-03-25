@@ -14,10 +14,6 @@ export default function Home({ feed }: props) {
             <section className="mx-auto max-w-4xl">
                 {feed && (
                     <section className="">
-                        {/* <p className="text-sm text-zinc-600">
-              {feed.totalResults} results
-            </p> */}
-
                         {feed.entries.map((entry) => (
                             <ValuableBookCard key={entry.id} entry={entry} />
                         ))}
