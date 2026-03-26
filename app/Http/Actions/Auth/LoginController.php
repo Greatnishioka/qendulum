@@ -10,7 +10,7 @@ use App\Http\Resources\Auth\LoginResource;
 use App\Http\Responders\Auth\LoginResponder;
 use Illuminate\Http\RedirectResponse;
 
-class LoginController extends Controller
+class LoginController
 {
     public function __construct(
         private readonly LoginUseCase $loginUseCase,

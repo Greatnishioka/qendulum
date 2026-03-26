@@ -7,7 +7,7 @@ use App\Http\Requests\ValuableBook\SearchArxivRequest;
 use App\Http\Responders\ValuableBook\SearchArxivResponder;
 use Inertia\Response;
 
-class HomeController extends Controller
+class HomeController
 {
     public function __construct(
         private readonly SearchArxivUseCase $searchArxivUseCase,

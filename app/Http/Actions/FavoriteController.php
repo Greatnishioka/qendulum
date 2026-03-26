@@ -9,7 +9,7 @@ use App\Http\Requests\ValuableBook\CreateFavoriteRequest;
 use App\Http\Responders\ValuableBook\CreateFavoriteResponder;
 use Illuminate\Http\RedirectResponse;
 
-class FavoriteController extends Controller
+class FavoriteController
 {
     public function __construct(
         private readonly CreateFavoriteUseCase $createFavoriteUseCase,
