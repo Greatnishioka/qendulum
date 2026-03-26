@@ -8,6 +8,9 @@ use App\Domain\Auth\Entity\UserAuthEntity;
 use App\Domain\Auth\Exception\InvalidCredentialsException;
 use App\Domain\Auth\Repository\UserAuthRepository;
 use App\Domain\Auth\Service\PasswordHasher;
+use App\Domain\Auth\Service\UserAuthenticator;
+use App\Domain\Auth\ValueObject\Email;
+use App\Domain\Auth\ValueObject\Password;
 use PHPUnit\Framework\TestCase;
 
 class LoginUseCaseTest extends TestCase
@@ -22,22 +25,22 @@ class LoginUseCaseTest extends TestCase
         $user = new UserAuthEntity(
             id: 10,
             userId: 20,
-            email: 'test@example.com',
+            email: Email::fromString('test@example.com'),
             passwordHash: 'hashed-password',
         );
 
         $useCase = new LoginUseCase(
             new InMemoryUserAuthRepository($user),
-            new FixedPasswordHasher(true),
+            new UserAuthenticator(new FixedPasswordHasher(true)),
         );
 
         $resolved = $useCase->__invoke(new LoginInputData(
-            email: 'test@example.com',
-            password: 'password',
+            email: Email::fromString('test@example.com'),
+            password: Password::fromString('Strong@Pass'),
         ));
 
         $this->assertSame(10, $resolved->id());
-        $this->assertSame('test@example.com', $resolved->email());
+        $this->assertSame('test@example.com', $resolved->email()->value());
     }
 
     /**
@@ -48,14 +51,14 @@ class LoginUseCaseTest extends TestCase
     {
         $useCase = new LoginUseCase(
             new InMemoryUserAuthRepository(null),
-            new FixedPasswordHasher(true),
+            new UserAuthenticator(new FixedPasswordHasher(true)),
         );
 
         $this->expectException(InvalidCredentialsException::class);
 
         $useCase->__invoke(new LoginInputData(
-            email: 'missing@example.com',
-            password: 'password',
+            email: Email::fromString('missing@example.com'),
+            password: Password::fromString('Strong@Pass'),
         ));
     }
 
@@ -69,20 +72,20 @@ class LoginUseCaseTest extends TestCase
         $user = new UserAuthEntity(
             id: 10,
             userId: 20,
-            email: 'test@example.com',
+            email: Email::fromString('test@example.com'),
             passwordHash: 'hashed-password',
         );
 
         $useCase = new LoginUseCase(
             new InMemoryUserAuthRepository($user),
-            new FixedPasswordHasher(false),
+            new UserAuthenticator(new FixedPasswordHasher(false)),
         );
 
         $this->expectException(InvalidCredentialsException::class);
 
         $useCase->__invoke(new LoginInputData(
-            email: 'test@example.com',
-            password: 'wrong-password',
+            email: Email::fromString('test@example.com'),
+            password: Password::fromString('Wrong@Pass'),
         ));
     }
 }
@@ -94,13 +97,13 @@ class InMemoryUserAuthRepository implements UserAuthRepository
     ) {
     }
 
-    public function findByEmail(string $email): ?UserAuthEntity
+    public function findByEmail(Email $email): ?UserAuthEntity
     {
         if ($this->userAuth === null) {
             return null;
         }
 
-        return $this->userAuth->email() === $email ? $this->userAuth : null;
+        return $this->userAuth->email()->equals($email) ? $this->userAuth : null;
     }
 }
 

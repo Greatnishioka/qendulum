@@ -2,12 +2,14 @@
 
 namespace App\Domain\Auth\Entity;
 
+use App\Domain\Auth\ValueObject\Email;
+
 class UserAuthEntity
 {
     public function __construct(
         private readonly int $id,
         private readonly int $userId,
-        private readonly string $email,
+        private readonly Email $email,
         private readonly string $passwordHash,
     ) {
     }
@@ -22,7 +24,7 @@ class UserAuthEntity
         return $this->userId;
     }
 
-    public function email(): string
+    public function email(): Email
     {
         return $this->email;
     }

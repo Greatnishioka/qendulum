@@ -20,6 +20,8 @@ class LoginControllerTest extends TestCase
      */
     public function test_it_logs_in_with_valid_credentials(): void
     {
+        $plainPassword = 'Strong@Pass';
+
         $userId = DB::table('users')->insertGetId([
             'public_uuid' => (string) Str::uuid(),
             'created_at' => now(),
@@ -29,7 +31,7 @@ class LoginControllerTest extends TestCase
         $userAuthId = DB::table('user_auth')->insertGetId([
             'user_id' => $userId,
             'email' => 'test@example.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make($plainPassword),
             'remember_token' => Str::random(10),
             'created_at' => now(),
             'updated_at' => now(),
@@ -39,7 +41,7 @@ class LoginControllerTest extends TestCase
             ->from('/')
             ->post(route('login'), [
                 'email' => 'test@example.com',
-                'password' => 'password',
+                'password' => $plainPassword,
             ]);
 
         $response->assertRedirect('/');
@@ -53,6 +55,8 @@ class LoginControllerTest extends TestCase
      */
     public function test_it_rejects_invalid_credentials(): void
     {
+        $plainPassword = 'Strong@Pass';
+
         $userId = DB::table('users')->insertGetId([
             'public_uuid' => (string) Str::uuid(),
             'created_at' => now(),
@@ -62,7 +66,7 @@ class LoginControllerTest extends TestCase
         DB::table('user_auth')->insert([
             'user_id' => $userId,
             'email' => 'test@example.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make($plainPassword),
             'remember_token' => Str::random(10),
             'created_at' => now(),
             'updated_at' => now(),
@@ -72,7 +76,7 @@ class LoginControllerTest extends TestCase
             ->from('/')
             ->post(route('login'), [
                 'email' => 'test@example.com',
-                'password' => 'wrong-password',
+                'password' => 'Wrong@Pass',
             ]);
 
         $response
@@ -94,7 +98,7 @@ class LoginControllerTest extends TestCase
             ->from('/')
             ->post(route('login'), [
                 'email' => 'not-an-email',
-                'password' => '',
+                'password' => 'password',
             ]);
 
         $response
