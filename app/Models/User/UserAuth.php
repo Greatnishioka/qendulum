@@ -7,6 +7,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property-read User|null $user
+ */
 class UserAuth extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -49,6 +52,9 @@ class UserAuth extends Authenticatable
     }
 
     // 感覚的にはEntityの中に書く関数みたいな感じで、このテーブルからUserテーブルのレコードを取得。
+    /**
+     * @return BelongsTo<User, UserAuth>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

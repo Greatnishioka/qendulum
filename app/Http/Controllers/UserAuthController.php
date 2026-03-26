@@ -4,21 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use Inertia\Inertia;
-use Inertia\Response;
-
-// models
-use App\Models\User\UserAuth;
-
 class UserAuthController extends Controller
 {
-
-    private UserAuth $userAuth;
-    public function __construct(
-        UserAuth $userAuth
-    ) {
-        $this->userAuth = $userAuth;
-    }
 
     /**
      * Handle the incoming request.
@@ -29,8 +16,5 @@ class UserAuthController extends Controller
             'email' => ['nullable', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'max:255'],
         ]);
-
-
-
     }
 }

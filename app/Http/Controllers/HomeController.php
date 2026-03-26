@@ -2,26 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ArxivService;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Application\ValuableBook\UseCase\SearchArxivUseCase;
+use App\Http\Requests\ValuableBook\SearchArxivRequest;
+use App\Http\Responders\ValuableBook\SearchArxivResponder;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function __invoke(Request $request, ArxivService $arxivService): Response
+    public function __construct(
+        private readonly SearchArxivUseCase $searchArxivUseCase,
+        private readonly SearchArxivResponder $searchArxivResponder,
+    ) {
+    }
+
+    public function __invoke(SearchArxivRequest $request): Response
     {
-        $validated = $request->validate([
-            'query' => ['nullable', 'string', 'max:255'],
-        ]);
+        $feed = $this->searchArxivUseCase->__invoke($request->toInputData());
 
-        $query = trim((string) ($validated['query'] ?? ''));
-        $feed = $query !== '' ? $arxivService->search($query) : null;
-
-        // ここどうやって型情報をフロントと共有しているの？というかそもそも型を共有しているの？もし、していない場合は型共有するための仕組みほしいかも。
-        // していないみたい。
-        return Inertia::render('Home', [
-            'feed' => $feed,
-        ]);
+        return $this->searchArxivResponder->success($feed);
     }
 }
