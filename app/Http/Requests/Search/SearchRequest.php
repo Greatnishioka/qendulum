@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\ValuableBook;
+namespace App\Http\Requests\Search;
 
-use App\Application\ValuableBook\Dto\SearchArxivInputData;
+use App\Application\Search\Dto\SearchInputData;
 use Illuminate\Foundation\Http\FormRequest;
 
-class SearchArxivRequest extends FormRequest
+class SearchRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -24,9 +24,9 @@ class SearchArxivRequest extends FormRequest
         ];
     }
 
-    public function toInputData(): SearchArxivInputData
+    public function toInputData(): SearchInputData
     {
-        return new SearchArxivInputData(
+        return new SearchInputData(
             query: trim((string) ($this->validated('query') ?? '')),
         );
     }

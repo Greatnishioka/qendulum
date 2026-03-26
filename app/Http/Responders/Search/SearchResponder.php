@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Responders\ValuableBook;
+namespace App\Http\Responders\Search;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class SearchArxivResponder
+class SearchResponder
 {
     /**
      * @param array<string, mixed>|Arrayable<string, mixed>|null $feed

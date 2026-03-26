@@ -2,23 +2,23 @@
 
 namespace App\Http\Actions\Search;
 
-use App\Application\ValuableBook\UseCase\SearchArxivUseCase;
-use App\Http\Requests\ValuableBook\SearchArxivRequest;
-use App\Http\Responders\ValuableBook\SearchArxivResponder;
+use App\Application\Search\UseCase\SearchPaperUseCase;
+use App\Http\Requests\Search\SearchRequest;
+use App\Http\Responders\Search\SearchResponder;
 use Inertia\Response;
 
 class SearchAction
 {
     public function __construct(
-        private readonly SearchArxivUseCase $searchArxivUseCase,
-        private readonly SearchArxivResponder $searchArxivResponder,
+        private readonly SearchPaperUseCase $searchPaperUseCase,
+        private readonly SearchResponder $searchResponder,
     ) {
     }
 
-    public function __invoke(SearchArxivRequest $request): Response
+    public function __invoke(SearchRequest $request): Response
     {
-        $feed = $this->searchArxivUseCase->__invoke($request->toInputData());
+        $feed = $this->searchPaperUseCase->__invoke($request->toInputData());
 
-        return $this->searchArxivResponder->success($feed);
+        return $this->searchResponder->success($feed);
     }
 }

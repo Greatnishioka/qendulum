@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Application\ValuableBook\Dto;
+namespace App\Application\Search\Dto;
 
-class SearchArxivInputData
+class SearchInputData
 {
     public function __construct(
         public readonly string $query,

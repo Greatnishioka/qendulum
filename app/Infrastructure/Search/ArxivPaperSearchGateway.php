@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\ValuableBook;
+namespace App\Infrastructure\Search;
 
-use App\Domain\ValuableBook\Repository\SearchArxivGateway;
+use App\Domain\Search\Repository\PaperSearchGateway;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class ArxivSearchGateway implements SearchArxivGateway
+class ArxivPaperSearchGateway implements PaperSearchGateway
 {
     private const PACER_LOCK_KEY = 'arxiv:pacer-lock';
     private const LAST_REQUEST_AT_KEY = 'arxiv:last-request-at';
