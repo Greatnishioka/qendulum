@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Actions\ValuableBook;
 
 use App\Application\ValuableBook\UseCase\CreateFavoriteUseCase;
 use App\Http\Requests\ValuableBook\CreateFavoriteRequest;
 use App\Http\Responders\ValuableBook\CreateFavoriteResponder;
 use Illuminate\Http\RedirectResponse;
 
-class FavoriteController
+class FavoriteAction
 {
     public function __construct(
         private readonly CreateFavoriteUseCase $createFavoriteUseCase,

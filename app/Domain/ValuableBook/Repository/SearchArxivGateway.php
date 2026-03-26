@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\ValuableBook\Contract;
+namespace App\Domain\ValuableBook\Repository;
 
 interface SearchArxivGateway
 {

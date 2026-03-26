@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\ValuableBook\UseCase;
 
-use App\Application\ValuableBook\Contract\SearchArxivGateway;
 use App\Application\ValuableBook\Dto\SearchArxivInputData;
+use App\Domain\ValuableBook\Repository\SearchArxivGateway;
 
 class SearchArxivUseCase
 {

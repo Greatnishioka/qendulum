@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Actions\Search;
 
 use App\Application\ValuableBook\UseCase\SearchArxivUseCase;
 use App\Http\Requests\ValuableBook\SearchArxivRequest;
 use App\Http\Responders\ValuableBook\SearchArxivResponder;
 use Inertia\Response;
 
-class HomeController
+class SearchAction
 {
     public function __construct(
         private readonly SearchArxivUseCase $searchArxivUseCase,

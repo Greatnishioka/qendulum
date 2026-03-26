@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Actions\Auth;
 
 use App\Application\Auth\UseCase\LoginUseCase;
 use App\Domain\Auth\Exception\InvalidCredentialsException;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\Auth\LoginResource;
 use App\Http\Responders\Auth\LoginResponder;
 use Illuminate\Http\RedirectResponse;
 
-class LoginController
+class LoginAction
 {
     public function __construct(
         private readonly LoginUseCase $loginUseCase,

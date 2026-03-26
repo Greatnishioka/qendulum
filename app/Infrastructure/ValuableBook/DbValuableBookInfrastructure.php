@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\ValuableBook;
 
-use App\Application\ValuableBook\Contract\CreateFavoriteGateway;
 use App\Application\ValuableBook\Dto\CreateFavoriteInputData;
+use App\Domain\ValuableBook\Repository\CreateFavoriteGateway;
 use App\Models\User\User;
 use App\Models\UserValuableBookFavorite;
 use App\Models\ValuableBook\ValuableBook;

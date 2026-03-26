@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\ValuableBook;
 
-use App\Application\ValuableBook\Contract\SearchArxivGateway;
+use App\Domain\ValuableBook\Repository\SearchArxivGateway;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;

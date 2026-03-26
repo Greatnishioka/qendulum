@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\ValuableBook\UseCase;
 
-use App\Application\ValuableBook\Contract\CreateFavoriteGateway;
 use App\Application\ValuableBook\Dto\CreateFavoriteInputData;
+use App\Domain\ValuableBook\Repository\CreateFavoriteGateway;
 
 class CreateFavoriteUseCase
 {
