@@ -50,10 +50,28 @@ class CreateFavoriteRequest extends FormRequest
     {
         /** @var array<string, mixed> $valuableBook */
         $valuableBook = $this->validated('valuable_book');
+        /** @var array<int, array{name:string}> $authors */
+        $authors = $valuableBook['authors'] ?? [];
+        /** @var array<int, array{term:string,scheme:?string}> $categories */
+        $categories = $valuableBook['categories'] ?? [];
+        /** @var array<int, array{href:string,rel:?string,type:?string,title:?string}> $links */
+        $links = $valuableBook['links'] ?? [];
+        /** @var array{term?:string,scheme?:?string}|null $primaryCategory */
+        $primaryCategory = $valuableBook['primaryCategory'] ?? null;
 
         return new CreateFavoriteInputData(
             userPublicUuid: trim((string) $this->validated('user_id')),
-            valuableBook: $valuableBook,
+            source: 'arxiv',
+            sourcePaperId: trim((string) $valuableBook['id']),
+            title: trim((string) $valuableBook['title']),
+            abstract: isset($valuableBook['summary']) ? (string) $valuableBook['summary'] : null,
+            publishedAt: isset($valuableBook['published']) ? (string) $valuableBook['published'] : null,
+            updatedAtSource: isset($valuableBook['updated']) ? (string) $valuableBook['updated'] : null,
+            authors: $authors,
+            categories: $categories,
+            links: $links,
+            primaryCategory: isset($primaryCategory['term']) ? (string) $primaryCategory['term'] : null,
+            rawPayload: $valuableBook,
         );
     }
 }
