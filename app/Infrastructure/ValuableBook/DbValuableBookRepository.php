@@ -12,7 +12,7 @@ class DbValuableBookRepository implements ValuableBookRepository
 {
     public function save(ValuableBookEntity $valuableBook): ValuableBookEntity
     {
-        $model = ValuableBook::query()->firstOrCreate(
+        $model = ValuableBook::query()->updateOrCreate(
             [
                 'source' => $valuableBook->source()->value(),
                 'source_paper_id' => $valuableBook->sourcePaperId()->value(),

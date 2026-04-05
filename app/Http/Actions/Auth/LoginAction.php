@@ -25,9 +25,8 @@ class LoginAction
         try {
             $userAuth = $this->loginUseCase->__invoke($request->toInputData());
         } catch (InvalidCredentialsException) {
-            $this->loginResponder->invalidCredentials();
+            throw new InvalidCredentialsException('Invalid email or password.', 'invalid_credentials', 401);
         }
-
         return $this->loginResponder->success($request, new LoginResource($userAuth));
     }
 }

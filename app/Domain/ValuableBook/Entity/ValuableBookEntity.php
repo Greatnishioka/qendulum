@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\ValuableBook\Entity;
 
 use App\Domain\ValuableBook\ValueObject\SourcePaperId;
+use App\Domain\ValuableBook\ValueObject\ValuableBookIdentity;
 use App\Domain\ValuableBook\ValueObject\ValuableBookSource;
 use App\Domain\ValuableBook\ValueObject\ValuableBookTitle;
 use DateTimeImmutable;
@@ -46,6 +47,11 @@ class ValuableBookEntity
     public function sourcePaperId(): SourcePaperId
     {
         return $this->sourcePaperId;
+    }
+
+    public function identity(): ValuableBookIdentity
+    {
+        return new ValuableBookIdentity($this->source, $this->sourcePaperId);
     }
 
     public function title(): ValuableBookTitle

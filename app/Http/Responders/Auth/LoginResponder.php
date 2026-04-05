@@ -20,11 +20,4 @@ class LoginResponder
 
         return redirect()->back();
     }
-
-    public function invalidCredentials(): never
-    {
-        throw ValidationException::withMessages([
-            'email' => 'メールアドレスまたはパスワードが正しくありません。',
-        ]);
-    }
 }
