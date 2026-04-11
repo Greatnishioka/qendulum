@@ -2,13 +2,16 @@ import { useForm } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
+import { FiLogIn } from "react-icons/fi";
 
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
-type props = {};
+type props = {
 
-export default function SideVar({}: props) {
+};
+
+export default function SideVar({ }: props) {
     const animationMs = 250;
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
@@ -77,6 +80,7 @@ export default function SideVar({}: props) {
     const InputTextButtonProps: InputTextButtonProps[] = [
         {
             label: "ログイン",
+            sabLabel: null,
             onClick: () =>
                 form.post("/login", {
                     preserveState: true,
@@ -86,48 +90,61 @@ export default function SideVar({}: props) {
                     },
                 }),
             isSubmit: true,
+            icon: (<FiLogIn />)
+        },
+        {
+            label: null,
+            sabLabel: null,
+            onClick: () =>
+                form.post("/login", {
+                    preserveState: true,
+                    replace: true,
+                    onSuccess: () => {
+                        console.log("login success");
+                    },
+                }),
+            isSubmit: true,
+            icon: "swap"
         },
     ];
 
     return (
         <div className="flex-1 sticky border-l border-(--color-dark)">
-            <div className="">
-                <div className="p-4 bg-(--color-light)">
-                    <div className="p-3 border-stripes border border-(--color-dark)">
-                        <div className="px-3 py-12 bg-white border border-(--color-dark) min-h-56 flex flex-col items-center justify-center gap-9">
-                            <div className="flex flex-col items-center justify-center gap-4">
-                                <h3 className="text-2xl font-bold text-[#BDBECA]">
-                                    ログインしていません
-                                </h3>
-                                <p className="font-semibold text-[#90919C]">
-                                    お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
-                                </p>
-                            </div>
-                            <div className="relative mt-4 w-full">
-                                <button
-                                    ref={loginButtonRef}
-                                    className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
-                                    onClick={() => setIsOpenLoginModal(true)}
+            <div className="p-4 bg-(--color-light)">
+                <div className="p-3 border-stripes border border-(--color-dark)">
+                    <div className="px-3 py-12 bg-white border border-(--color-dark) min-h-56 flex flex-col items-center justify-center gap-9">
+                        <div className="flex flex-col items-center justify-center gap-4">
+                            <h3 className="text-2xl font-bold text-[#BDBECA]">
+                                ログインしていません
+                            </h3>
+                            <p className="font-semibold text-[#90919C]">
+                                お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
+                            </p>
+                        </div>
+                        <div className="relative mt-4 w-full">
+                            <button
+                                ref={loginButtonRef}
+                                className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
+                                onClick={() => setIsOpenLoginModal(true)}
+                            >
+                                ログイン
+                            </button>
+                            {isRenderedLoginModal ? (
+                                <div
+                                    className={`${isOpenLoginModal ? "opacity-100" : "pointer-events-none opacity-0"}`}
                                 >
-                                    ログイン
-                                </button>
-                                {isRenderedLoginModal ? (
-                                    <div
-                                        className={`${isOpenLoginModal ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                                    <SerifBox
+                                        setIsOpenModal={setIsOpenLoginModal}
+                                        position={loginModalPosition}
+                                        isOpen={isOpenLoginModal}
                                     >
-                                        <SerifBox
-                                            setIsOpenModal={setIsOpenLoginModal}
-                                            position={loginModalPosition}
-                                            isOpen={isOpenLoginModal}
-                                        >
-                                            <TextInputBox
-                                                inputList={InputTextBoxProps}
-                                                buttonList={InputTextButtonProps}
-                                            />
-                                        </SerifBox>
-                                    </div>
-                                ) : null}
-                            </div>
+                                        <TextInputBox
+                                            inputList={InputTextBoxProps}
+                                            buttonList={InputTextButtonProps}
+                                        />
+                                    </SerifBox>
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Application\Auth\UseCase;
 
+use App\Application\Auth\Dto\AuthenticatedUser;
 use App\Application\Auth\Dto\LoginInputData;
 use App\Application\Auth\UseCase\LoginUseCase;
 use App\Domain\Auth\Entity\UserAuthEntity;
@@ -18,7 +19,7 @@ class LoginUseCaseTest extends TestCase
     /**
      * 仕様:
      * メールアドレスに対応する認証ユーザーが存在し、パスワード検証が通る場合は
-     * ログイン対象の認証ユーザーを返す。
+     * ログイン対象の authId を返す。
      */
     public function test_it_returns_user_when_credentials_are_valid(): void
     {
@@ -39,8 +40,8 @@ class LoginUseCaseTest extends TestCase
             password: Password::fromString('Strong@Pass'),
         ));
 
-        $this->assertSame(10, $resolved->id());
-        $this->assertSame('test@example.com', $resolved->email()->value());
+        $this->assertInstanceOf(AuthenticatedUser::class, $resolved);
+        $this->assertSame(10, $resolved->authId);
     }
 
     /**

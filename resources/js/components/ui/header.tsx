@@ -29,6 +29,7 @@ export default function Header({ query = "" }: props) {
     const buttonList: InputTextButtonProps[] = [
         {
             label: "Search",
+            sabLabel: "検索",
             onClick: () =>
                 form.get("/search", {
                     preserveState: true,
@@ -36,9 +37,11 @@ export default function Header({ query = "" }: props) {
                 }),
             isSubmit: true,
             disabled: buttonDisabled,
+            icon: "search"
         },
         {
             label: "Fuzzy search",
+            sabLabel: "あいまい検索",
             onClick: () =>
                 form.get("/search", {
                     preserveState: true,
@@ -46,12 +49,15 @@ export default function Header({ query = "" }: props) {
                 }),
             isSubmit: true,
             disabled: buttonDisabled,
+            icon: "fuzzy"
         },
         {
-            label: "",
+            label: null,
+            sabLabel: null,
             onClick: () => form.setData("query", ""),
             isSubmit: false,
             disabled: buttonDisabled,
+            icon: "clear"
         },
     ];
 

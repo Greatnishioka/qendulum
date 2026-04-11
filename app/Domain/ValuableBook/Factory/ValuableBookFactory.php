@@ -13,9 +13,8 @@ use DateTimeImmutable;
 class ValuableBookFactory
 {
     /**
-     * @param array<int, array{name:string}> $authors
-     * @param array<int, array{term:string,scheme:?string}> $categories
-     * @param array<int, array{href:string,rel:?string,type:?string,title:?string}> $links
+     * @param list<string> $authors
+     * @param list<string> $categories
      * @param array<string, mixed> $rawPayload
      */
     public function create(
@@ -25,10 +24,11 @@ class ValuableBookFactory
         ?string $abstract,
         ?string $publishedAt,
         ?string $updatedAtSource,
+        ?string $pdfUrl,
+        ?string $absUrl,
+        ?string $primaryCategory,
         array $authors,
         array $categories,
-        array $links,
-        ?string $primaryCategory,
         array $rawPayload,
     ): ValuableBookEntity {
         return new ValuableBookEntity(
@@ -38,19 +38,11 @@ class ValuableBookFactory
             abstract: $abstract,
             publishedAt: $this->dateTimeOrNull($publishedAt),
             updatedAtSource: $this->dateTimeOrNull($updatedAtSource),
-            pdfUrl: $this->findLinkHref($links, 'related', 'application/pdf')
-                ?? $this->findLinkHref($links, null, 'application/pdf'),
-            absUrl: $this->findLinkHref($links, 'alternate', 'text/html')
-                ?? trim($sourcePaperId),
+            pdfUrl: $this->stringOrNull($pdfUrl),
+            absUrl: $this->stringOrNull($absUrl) ?? trim($sourcePaperId),
             primaryCategory: $primaryCategory,
-            categories: array_values(array_map(
-                static fn (array $category): string => trim($category['term']),
-                $categories,
-            )),
-            authors: array_values(array_map(
-                static fn (array $author): string => trim($author['name']),
-                $authors,
-            )),
+            categories: $this->normalizeStrings($categories),
+            authors: $this->normalizeStrings($authors),
             rawPayload: $rawPayload,
         );
     }
@@ -64,27 +56,22 @@ class ValuableBookFactory
         return new DateTimeImmutable($value);
     }
 
-    /**
-     * @param array<int, array{href:string,rel:?string,type:?string,title:?string}> $links
-     */
-    private function findLinkHref(array $links, ?string $rel, ?string $type): ?string
+    private function stringOrNull(?string $value): ?string
     {
-        foreach ($links as $link) {
-            if ($rel !== null && $link['rel'] !== $rel) {
-                continue;
-            }
+        $trimmed = $value !== null ? trim($value) : null;
 
-            if ($type !== null && $link['type'] !== $type) {
-                continue;
-            }
+        return $trimmed !== null && $trimmed !== '' ? $trimmed : null;
+    }
 
-            $href = trim($link['href']);
-
-            if ($href !== '') {
-                return $href;
-            }
-        }
-
-        return null;
+    /**
+     * @param list<string> $values
+     * @return list<string>
+     */
+    private function normalizeStrings(array $values): array
+    {
+        return array_values(array_filter(array_map(
+            static fn (string $value): string => trim($value),
+            $values,
+        ), static fn (string $value): bool => $value !== ''));
     }
 }

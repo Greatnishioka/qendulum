@@ -18,29 +18,11 @@ class ValuableBookFactoryTest extends TestCase
             abstract: 'Important summary.',
             publishedAt: '2026-03-21T00:00:00Z',
             updatedAtSource: '2026-03-22T00:00:00Z',
-            authors: [
-                ['name' => ' Alice '],
-                ['name' => 'Bob'],
-            ],
-            categories: [
-                ['term' => ' quant-ph ', 'scheme' => 'http://arxiv.org/schemas/atom'],
-                ['term' => 'cs.AI', 'scheme' => 'http://arxiv.org/schemas/atom'],
-            ],
-            links: [
-                [
-                    'href' => 'http://arxiv.org/abs/1234.5678v1',
-                    'rel' => 'alternate',
-                    'type' => 'text/html',
-                    'title' => null,
-                ],
-                [
-                    'href' => ' http://arxiv.org/pdf/1234.5678v1 ',
-                    'rel' => 'related',
-                    'type' => 'application/pdf',
-                    'title' => null,
-                ],
-            ],
+            pdfUrl: ' http://arxiv.org/pdf/1234.5678v1 ',
+            absUrl: 'http://arxiv.org/abs/1234.5678v1',
             primaryCategory: 'quant-ph',
+            authors: [' Alice ', 'Bob'],
+            categories: [' quant-ph ', 'cs.AI'],
             rawPayload: ['id' => 'http://arxiv.org/abs/1234.5678v1'],
         );
 
@@ -64,10 +46,11 @@ class ValuableBookFactoryTest extends TestCase
             abstract: null,
             publishedAt: null,
             updatedAtSource: null,
+            pdfUrl: null,
+            absUrl: null,
+            primaryCategory: null,
             authors: [],
             categories: [],
-            links: [],
-            primaryCategory: null,
             rawPayload: [],
         );
 

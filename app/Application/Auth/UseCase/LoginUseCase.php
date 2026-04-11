@@ -2,8 +2,8 @@
 
 namespace App\Application\Auth\UseCase;
 
+use App\Application\Auth\Dto\AuthenticatedUser;
 use App\Application\Auth\Dto\LoginInputData;
-use App\Domain\Auth\Entity\UserAuthEntity;
 use App\Domain\Auth\Exception\InvalidCredentialsException;
 use App\Domain\Auth\Repository\UserAuthRepository;
 use App\Domain\Auth\Service\UserAuthenticator;
@@ -16,7 +16,7 @@ class LoginUseCase
     ) {
     }
 
-    public function __invoke(LoginInputData $input): UserAuthEntity
+    public function __invoke(LoginInputData $input): AuthenticatedUser
     {
         $userAuth = $this->userAuthRepository->findByEmail($input->email);
 
@@ -24,6 +24,6 @@ class LoginUseCase
             throw new InvalidCredentialsException('Invalid login credentials.');
         }
 
-        return $userAuth;
+        return new AuthenticatedUser($userAuth->id());
     }
 }

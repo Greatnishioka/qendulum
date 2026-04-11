@@ -2,17 +2,19 @@
 
 namespace Tests\Unit\Application\ValuableBook\UseCase;
 
+use App\Application\Shared\Transaction\TransactionManager;
 use App\Application\ValuableBook\Dto\CreateFavoriteInputData;
+use App\Application\ValuableBook\Port\FavoriteStore;
+use App\Application\ValuableBook\Port\UserIdResolver;
 use App\Application\ValuableBook\UseCase\CreateFavoriteUseCase;
+use App\Domain\User\ValueObject\UserId;
+use App\Domain\User\ValueObject\UserPublicUuid;
 use App\Domain\ValuableBook\Entity\ValuableBookEntity;
 use App\Domain\ValuableBook\Factory\ValuableBookFactory;
-use App\Domain\ValuableBook\Repository\FavoriteRepository;
 use App\Domain\ValuableBook\Repository\ValuableBookRepository;
 use App\Domain\ValuableBook\ValueObject\SourcePaperId;
-use App\Domain\ValuableBook\ValueObject\UserPublicUuid;
 use App\Domain\ValuableBook\ValueObject\ValuableBookIdentity;
 use App\Domain\ValuableBook\ValueObject\ValuableBookSource;
-use App\Domain\ValuableBook\ValueObject\ValuableBookTitle;
 use PHPUnit\Framework\TestCase;
 
 class CreateFavoriteUseCaseTest extends TestCase
@@ -20,12 +22,14 @@ class CreateFavoriteUseCaseTest extends TestCase
     public function test_it_persists_book_and_registers_favorite_by_identity(): void
     {
         $valuableBookRepository = new SpyValuableBookRepository();
-        $favoriteRepository = new SpyFavoriteRepository();
+        $favoriteStore = new SpyFavoriteStore();
 
         $useCase = new CreateFavoriteUseCase(
             new ValuableBookFactory(),
             $valuableBookRepository,
-            $favoriteRepository,
+            new FixedUserIdResolver(UserId::fromInt(42)),
+            $favoriteStore,
+            new ImmediateTransactionManager(),
         );
 
         $useCase->__invoke(new CreateFavoriteInputData(
@@ -36,19 +40,20 @@ class CreateFavoriteUseCaseTest extends TestCase
             abstract: 'Summary',
             publishedAt: null,
             updatedAtSource: null,
-            authors: [['name' => 'Alice']],
-            categories: [['term' => 'cs.AI', 'scheme' => null]],
-            links: [],
+            pdfUrl: null,
+            absUrl: null,
             primaryCategory: 'cs.AI',
+            authors: ['Alice'],
+            categories: ['cs.AI'],
             rawPayload: ['id' => 'paper-id'],
         ));
 
         $this->assertNotNull($valuableBookRepository->savedBook);
         $this->assertSame('arxiv', $valuableBookRepository->savedBook->source()->value());
         $this->assertSame('paper-id', $valuableBookRepository->savedBook->sourcePaperId()->value());
-        $this->assertSame('user-uuid', $favoriteRepository->storedUserPublicUuid?->value());
-        $this->assertNotNull($favoriteRepository->storedIdentity);
-        $this->assertTrue($favoriteRepository->storedIdentity->equals(
+        $this->assertSame(42, $favoriteStore->storedUserId?->value());
+        $this->assertNotNull($favoriteStore->storedIdentity);
+        $this->assertTrue($favoriteStore->storedIdentity->equals(
             new ValuableBookIdentity(
                 ValuableBookSource::fromString('arxiv'),
                 SourcePaperId::fromString('paper-id'),
@@ -61,7 +66,7 @@ class SpyValuableBookRepository implements ValuableBookRepository
 {
     public ?ValuableBookEntity $savedBook = null;
 
-    public function save(ValuableBookEntity $valuableBook): ValuableBookEntity
+    public function upsert(ValuableBookEntity $valuableBook): ValuableBookEntity
     {
         $this->savedBook = $valuableBook;
 
@@ -69,15 +74,36 @@ class SpyValuableBookRepository implements ValuableBookRepository
     }
 }
 
-class SpyFavoriteRepository implements FavoriteRepository
+class FixedUserIdResolver implements UserIdResolver
 {
-    public ?UserPublicUuid $storedUserPublicUuid = null;
+    public function __construct(
+        private readonly UserId $userId,
+    ) {
+    }
+
+    public function resolve(UserPublicUuid $userPublicUuid): UserId
+    {
+        return $this->userId;
+    }
+}
+
+class SpyFavoriteStore implements FavoriteStore
+{
+    public ?UserId $storedUserId = null;
 
     public ?ValuableBookIdentity $storedIdentity = null;
 
-    public function store(UserPublicUuid $userPublicUuid, ValuableBookIdentity $valuableBookIdentity): void
+    public function store(UserId $userId, ValuableBookIdentity $valuableBookIdentity): void
     {
-        $this->storedUserPublicUuid = $userPublicUuid;
+        $this->storedUserId = $userId;
         $this->storedIdentity = $valuableBookIdentity;
+    }
+}
+
+class ImmediateTransactionManager implements TransactionManager
+{
+    public function run(callable $callback): mixed
+    {
+        return $callback();
     }
 }

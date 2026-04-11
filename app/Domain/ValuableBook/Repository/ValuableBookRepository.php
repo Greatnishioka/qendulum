@@ -8,5 +8,5 @@ use App\Domain\ValuableBook\Entity\ValuableBookEntity;
 
 interface ValuableBookRepository
 {
-    public function save(ValuableBookEntity $valuableBook): ValuableBookEntity;
+    public function upsert(ValuableBookEntity $valuableBook): ValuableBookEntity;
 }

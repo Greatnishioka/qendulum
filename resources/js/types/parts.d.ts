@@ -1,3 +1,5 @@
+import { iconTypes } from "@/components/parts/textInputBox";
+
 export type InputTextBoxProps = {
     value?: string;
     placeholder?: string;
@@ -7,8 +9,11 @@ export type InputTextBoxProps = {
 };
 
 export type InputTextButtonProps = {
-    label: string;
+    label: string | null;
+    sabLabel: string | null;
     onClick: () => void;
     isSubmit: boolean;
     disabled?: boolean;
+    // SVGやImageコンポーネントによるアイコン + アイコンタイプ
+    icon: React.ReactNode | typeof iconTypes[number];
 };

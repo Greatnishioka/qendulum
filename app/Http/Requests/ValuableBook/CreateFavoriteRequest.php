@@ -50,14 +50,14 @@ class CreateFavoriteRequest extends FormRequest
     {
         /** @var array<string, mixed> $valuableBook */
         $valuableBook = $this->validated('valuable_book');
+        /** @var array{term?:string,scheme?:?string}|null $primaryCategory */
+        $primaryCategory = $valuableBook['primaryCategory'] ?? null;
         /** @var array<int, array{name:string}> $authors */
         $authors = $valuableBook['authors'] ?? [];
         /** @var array<int, array{term:string,scheme:?string}> $categories */
         $categories = $valuableBook['categories'] ?? [];
         /** @var array<int, array{href:string,rel:?string,type:?string,title:?string}> $links */
         $links = $valuableBook['links'] ?? [];
-        /** @var array{term?:string,scheme?:?string}|null $primaryCategory */
-        $primaryCategory = $valuableBook['primaryCategory'] ?? null;
 
         return new CreateFavoriteInputData(
             userPublicUuid: trim((string) $this->validated('user_id')),
@@ -67,11 +67,44 @@ class CreateFavoriteRequest extends FormRequest
             abstract: isset($valuableBook['summary']) ? (string) $valuableBook['summary'] : null,
             publishedAt: isset($valuableBook['published']) ? (string) $valuableBook['published'] : null,
             updatedAtSource: isset($valuableBook['updated']) ? (string) $valuableBook['updated'] : null,
-            authors: $authors,
-            categories: $categories,
-            links: $links,
+            pdfUrl: $this->findLinkHref($links, 'related', 'application/pdf')
+                ?? $this->findLinkHref($links, null, 'application/pdf'),
+            absUrl: $this->findLinkHref($links, 'alternate', 'text/html')
+                ?? trim((string) $valuableBook['id']),
             primaryCategory: isset($primaryCategory['term']) ? (string) $primaryCategory['term'] : null,
+            authors: array_values(array_map(
+                static fn (array $author): string => trim((string) $author['name']),
+                $authors,
+            )),
+            categories: array_values(array_map(
+                static fn (array $category): string => trim((string) $category['term']),
+                $categories,
+            )),
             rawPayload: $valuableBook,
         );
+    }
+
+    /**
+     * @param array<int, array{href:string,rel:?string,type:?string,title:?string}> $links
+     */
+    private function findLinkHref(array $links, ?string $rel, ?string $type): ?string
+    {
+        foreach ($links as $link) {
+            if ($rel !== null && ($link['rel'] ?? null) !== $rel) {
+                continue;
+            }
+
+            if ($type !== null && ($link['type'] ?? null) !== $type) {
+                continue;
+            }
+
+            $href = trim((string) $link['href']);
+
+            if ($href !== '') {
+                return $href;
+            }
+        }
+
+        return null;
     }
 }

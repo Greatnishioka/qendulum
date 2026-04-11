@@ -10,7 +10,7 @@ use App\Models\ValuableBook\ValuableBook;
 
 class DbValuableBookRepository implements ValuableBookRepository
 {
-    public function save(ValuableBookEntity $valuableBook): ValuableBookEntity
+    public function upsert(ValuableBookEntity $valuableBook): ValuableBookEntity
     {
         $model = ValuableBook::query()->updateOrCreate(
             [

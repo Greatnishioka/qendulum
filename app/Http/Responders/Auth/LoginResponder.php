@@ -1,21 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Responders\Auth;
 
+use App\Application\Auth\Dto\AuthenticatedUser;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\Auth\LoginResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class LoginResponder
 {
-    public function success(LoginRequest $request, LoginResource $resource): RedirectResponse
+    public function success(LoginRequest $request, AuthenticatedUser $authenticatedUser): RedirectResponse
     {
-        /** @var array{id:int,user_id:int,email:string} $payload */
-        $payload = $resource->resolve($request);
-
-        Auth::guard('web')->loginUsingId($payload['id'], remember: $request->remember());
+        Auth::guard('web')->loginUsingId($authenticatedUser->authId, remember: $request->remember());
         $request->session()->regenerate();
 
         return redirect()->back();
