@@ -4,7 +4,7 @@ import { parseArxivFeed } from "@/feature/api/arxiv/util";
 
 const ARXIV_API_URL = import.meta.env.VITE_ARXIV_API_URL || "http://export.arxiv.org/api/query";
 
-export async function getArxiv<T>(query: string): Promise<ArxivFeed | null> {
+export async function getArxiv(query: string): Promise<ArxivFeed | null> {
     try {
         const response = await axios.get(`${ARXIV_API_URL}/guest/${query}`, {
             responseType: "text",
@@ -12,6 +12,6 @@ export async function getArxiv<T>(query: string): Promise<ArxivFeed | null> {
 
         return parseArxivFeed(response.data);
     } catch (error) {
-        return null;
+        throw new Error(`arXiv API との通信が失敗しました: ${error instanceof Error ? error.message : String(error)}`);
     }
 }

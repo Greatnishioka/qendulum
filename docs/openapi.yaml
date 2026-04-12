@@ -1,0 +1,276 @@
+openapi: 3.1.0
+info:
+  title: 'Qendulum API'
+  description: 'OpenAPI specification for the Qendulum web endpoints.'
+  version: 0.1.0
+servers:
+  -
+    url: 'http://localhost:8000'
+    description: 'Local development server'
+paths:
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: 'Authenticate a user and redirect back'
+      description: 'Handle the incoming request.'
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  maxLength: 128
+                  minLength: 8
+                  example: Example!234
+                remember:
+                  type: [boolean, 'null']
+                  example: false
+              type: object
+      responses:
+        '302':
+          description: 'Authenticated successfully and redirected back.'
+          headers:
+            Location:
+              description: 'Redirect target.'
+              schema:
+                type: string
+        '422':
+          description: 'Validation failed or credentials were invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /search:
+    get:
+      tags:
+        - Search
+      summary: 'Render the search page with query results'
+      operationId: searchPapers
+      parameters:
+        -
+          name: query
+          in: query
+          description: 'Search query string.'
+          required: false
+          schema:
+            type: string
+            maxLength: 255
+      responses:
+        '200':
+          description: 'Search page rendered successfully.'
+          content:
+            text/html: {  }
+        '422':
+          description: 'Validation failed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /favorites:
+    post:
+      tags:
+        - Favorites
+      summary: 'Create a favorite entry and redirect back'
+      operationId: createFavorite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFavoriteRequestBody'
+      responses:
+        '302':
+          description: 'Favorite was accepted and the client was redirected back.'
+          headers:
+            Location:
+              description: 'Redirect target.'
+              schema:
+                type: string
+        '422':
+          description: 'Validation failed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+components:
+  schemas:
+    ValidationErrorResponse:
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: 'The given data was invalid.'
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      type: object
+    FavoriteAuthor:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: 'Jane Doe'
+      type: object
+    FavoriteLink:
+      required:
+        - href
+      properties:
+        href:
+          type: string
+          maxLength: 2048
+          example: 'https://arxiv.org/abs/1234.5678'
+        rel:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: alternate
+        type:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: text/html
+        title:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: 'Abstract page'
+      type: object
+    FavoriteCategory:
+      required:
+        - term
+      properties:
+        term:
+          type: string
+          maxLength: 255
+          example: cs.AI
+        scheme:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: 'http://arxiv.org/schemas/atom'
+      type: object
+    FavoritePrimaryCategory:
+      properties:
+        term:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: cs.AI
+        scheme:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+          example: 'http://arxiv.org/schemas/atom'
+      type: object
+    FavoriteValuableBook:
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: string
+          maxLength: 255
+          example: 'http://arxiv.org/abs/1234.5678'
+        title:
+          type: string
+          maxLength: 255
+          example: 'Example paper title'
+        summary:
+          type:
+            - string
+            - 'null'
+        published:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        updated:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        authors:
+          type:
+            - array
+            - 'null'
+          items:
+            $ref: '#/components/schemas/FavoriteAuthor'
+        links:
+          type:
+            - array
+            - 'null'
+          items:
+            $ref: '#/components/schemas/FavoriteLink'
+        categories:
+          type:
+            - array
+            - 'null'
+          items:
+            $ref: '#/components/schemas/FavoriteCategory'
+        primaryCategory:
+          oneOf:
+            -
+              $ref: '#/components/schemas/FavoritePrimaryCategory'
+            -
+              type: 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+        journalRef:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+        doi:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+      type: object
+    CreateFavoriteRequestBody:
+      required:
+        - user_id
+        - valuable_book
+      properties:
+        user_id:
+          type: string
+          maxLength: 255
+          example: e4d2f0a6-92df-4c5d-9df8-5b5b71f30abc
+        valuable_book:
+          $ref: '#/components/schemas/FavoriteValuableBook'
+      type: object
+tags:
+  -
+    name: Search
+    description: 'Search endpoints'
+  -
+    name: Auth
+    description: 'Authentication endpoints'
+  -
+    name: Favorites
+    description: 'Favorite management endpoints'

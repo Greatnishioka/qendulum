@@ -7,11 +7,7 @@ import { FiLogIn } from "react-icons/fi";
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
-type props = {
-
-};
-
-export default function SideVar({ }: props) {
+export default function SideVar() {
     const animationMs = 250;
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
