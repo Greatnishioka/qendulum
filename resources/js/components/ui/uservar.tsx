@@ -15,23 +15,22 @@ export default function SideVar() {
         ease: [0.22, 1, 0.36, 1],
     } as const;
     const formSwipeVariants = {
-        initial: (direction: 1 | -1) => ({
+        initial: (isRegisterForm: boolean) => ({
             opacity: 0,
-            y: direction === 1 ? "-24%" : "24%",
+            y: isRegisterForm ? "-24%" : "24%",
         }),
         animate: {
             opacity: 1,
             y: "0%",
         },
-        exit: (direction: 1 | -1) => ({
+        exit: (isRegisterForm: boolean) => ({
             opacity: 0,
-            y: direction === 1 ? "24%" : "-24%",
+            y: isRegisterForm ? "24%" : "-24%",
         }),
     };
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
-    const [activeForm, setActiveForm] = useState<"login" | "register">("login");
-    const [swipeDirection, setSwipeDirection] = useState<1 | -1>(1);
+    const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
     const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
         width: undefined,
@@ -84,12 +83,10 @@ export default function SideVar() {
 
     // もし一個目の高さを設定する場合
     useLayoutEffect(() => {
-
         const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
         const height = firstChild?.offsetHeight && firstChild.offsetHeight;
         setLoginModalSize((prev) => ({ ...prev, height }));
-        
-    }, [activeForm, isRenderedLoginModal]);
+    }, [isRegisterForm, isRenderedLoginModal]);
 
     const LoginTextBoxProps: InputTextBoxProps[] = [
         {
@@ -108,14 +105,8 @@ export default function SideVar() {
         },
     ];
 
-    const showRegisterForm = () => {
-        setSwipeDirection(1);
-        setActiveForm("register");
-    };
-
-    const showLoginForm = () => {
-        setSwipeDirection(-1);
-        setActiveForm("login");
+    const toggleForm = () => {
+        setIsRegisterForm((prev) => !prev);
     };
 
     const LoginTextButtonProps: InputTextButtonProps[] = [
@@ -136,7 +127,7 @@ export default function SideVar() {
         {
             label: null,
             sabLabel: null,
-            onClick: showRegisterForm,
+            onClick: toggleForm,
             isSubmit: false,
             icon: "swap",
         },
@@ -177,13 +168,13 @@ export default function SideVar() {
         {
             label: null,
             sabLabel: null,
-            onClick: showLoginForm,
+            onClick: toggleForm,
             isSubmit: false,
             icon: "swap",
         },
     ];
     const currentForm =
-        activeForm === "login"
+        !isRegisterForm
             ? {
                   key: "login",
                   inputList: LoginTextBoxProps,
@@ -224,18 +215,18 @@ export default function SideVar() {
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
-                                        title="Login"
+                                        title={isRegisterForm ? "Register" : "Login"}
                                         drawingArea={loginModalSize}
                                     >
                                         <div ref={innerContainerRef} className="relative">
                                             <AnimatePresence
-                                                custom={swipeDirection}
+                                                custom={isRegisterForm}
                                                 initial={false}
                                                 mode="wait"
                                             >
                                                 <motion.div
                                                     key={currentForm.key}
-                                                    custom={swipeDirection}
+                                                    custom={isRegisterForm}
                                                     variants={formSwipeVariants}
                                                     initial="initial"
                                                     animate="animate"

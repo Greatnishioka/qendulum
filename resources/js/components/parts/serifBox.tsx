@@ -1,3 +1,5 @@
+import { AnimatePresence, motion } from "motion/react";
+
 type props = {
     children: React.ReactNode;
     setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,7 +17,6 @@ type props = {
 };
 
 export default function SerifBox({ children, setIsOpenModal, isOpen, title, position, drawingArea }: props) {
-
     return (
         <div
             className={`fixed z-50 flex -translate-x-full -translate-y-1/2 justify-center items-center transition-all duration-250 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0 -translate-y-[calc(50%+8px)]"}`}
@@ -27,7 +28,20 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
             "
             >
                 <div className="relative z-20 py-1.5 px-5 flex justify-between border-b border-(--color-dark) bg-white">
-                    <h3 className="text-(--color-turquoise) text-xs font-bold">{title}</h3>
+                    <div className="relative min-w-20 h-4.5">
+                        <AnimatePresence mode="wait" initial={false}>
+                            <motion.h3
+                                key={title}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.18, ease: "easeOut" }}
+                                className="absolute inset-0 text-(--color-turquoise) text-xs font-bold"
+                            >
+                                {title}
+                            </motion.h3>
+                        </AnimatePresence>
+                    </div>
                     <button type="button" onClick={() => setIsOpenModal(false)} className="">
                         <svg
                             width="14"

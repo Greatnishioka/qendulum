@@ -1,5 +1,6 @@
 import type { ArxivFeed } from "@/types/arxivArticlestype";
 import ValuableBookButton from "@/components/parts/valuableBookButton";
+import { truncate } from "@/util/util";
 
 type props = {
     entry: ArxivFeed["entries"][number];
@@ -20,13 +21,13 @@ export default function ValuableBookCard({ entry }: props) {
                                 {entry.title}
                             </a>
                         </h2>
-                        <p className="mt-3 text-sm leading-6 text-zinc-800">{entry.summary}</p>
+                        <p className="mt-3 text-sm leading-6 text-zinc-800">{truncate(entry.summary, 720)}</p>
                     </div>
                 </div>
                 <div className="border-b border-(--color-dark)">
                     <div className="p-6">
                         <p className="text-sm text-zinc-600">
-                            {entry.authors.map((author) => author.name).join(", ")}
+                            {truncate(entry.authors.map((author) => author.name).join(", "), 240)}
                         </p>
                     </div>
                 </div>
