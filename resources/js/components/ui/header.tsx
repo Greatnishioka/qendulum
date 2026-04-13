@@ -49,7 +49,7 @@ export default function Header({ query = "" }: props) {
                 }),
             isSubmit: true,
             disabled: buttonDisabled,
-            icon: "fuzzy"
+            icon: ""
         },
         {
             label: null,

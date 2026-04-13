@@ -12,13 +12,17 @@ export default function Home({ feed }: props) {
     return (
         <AppLayout>
             <section className="mx-auto max-w-4xl">
-                {feed && (
+                {feed ? (
                     <section className="">
                         {feed.entries.map((entry) => (
                             <ValuableBookCard key={entry.id} entry={entry} />
                         ))}
                     </section>
-                )}
+                ) :
+                    <section className="">
+
+                    </section>
+                }
             </section>
         </AppLayout>
     );

@@ -2,13 +2,20 @@ type props = {
     children: React.ReactNode;
     setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
     isOpen: boolean;
+    title: string;
     position: {
         top: number;
         left: number;
     };
+    // sizeが設定されている場合は、SerifBoxの幅と高さをそれに合わせる。設定されていない場合は内容に合わせる
+    drawingArea?: {
+        width?: number;
+        height?: number;
+    };
 };
 
-export default function SerifBox({ children, setIsOpenModal, isOpen, position }: props) {
+export default function SerifBox({ children, setIsOpenModal, isOpen, title, position, drawingArea }: props) {
+
     return (
         <div
             className={`fixed z-50 flex -translate-x-full -translate-y-1/2 justify-center items-center transition-all duration-250 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0 -translate-y-[calc(50%+8px)]"}`}
@@ -20,7 +27,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, position }:
             "
             >
                 <div className="relative z-20 py-1.5 px-5 flex justify-between border-b border-(--color-dark) bg-white">
-                    <h3 className="text-(--color-turquoise) text-xs font-bold">Login</h3>
+                    <h3 className="text-(--color-turquoise) text-xs font-bold">{title}</h3>
                     <button type="button" onClick={() => setIsOpenModal(false)} className="">
                         <svg
                             width="14"
@@ -38,8 +45,10 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, position }:
                     </button>
                 </div>
                 <div className="relative z-10 p-1 bg-white">
-                    <div className="rounded-b-2xl rounded-t-sm py-1.5 bg-[#EDEDED] flex items-center justify-center px-8">
-                        {children}
+                    <div className="rounded-b-2xl rounded-t-sm py-1.5 bg-[#EDEDED] flex items-start justify-center px-8">
+                        <div style={{ width: drawingArea?.width, height: drawingArea?.height }} className="overflow-hidden">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

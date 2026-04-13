@@ -1,5 +1,6 @@
 import { useForm } from "@inertiajs/react";
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
 import { FiLogIn } from "react-icons/fi";
@@ -9,10 +10,35 @@ import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
 export default function SideVar() {
     const animationMs = 250;
+    const swipeAnimation = {
+        duration: 0.32,
+        ease: [0.22, 1, 0.36, 1],
+    } as const;
+    const formSwipeVariants = {
+        initial: (direction: 1 | -1) => ({
+            opacity: 0,
+            y: direction === 1 ? "-24%" : "24%",
+        }),
+        animate: {
+            opacity: 1,
+            y: "0%",
+        },
+        exit: (direction: 1 | -1) => ({
+            opacity: 0,
+            y: direction === 1 ? "24%" : "-24%",
+        }),
+    };
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
+    const [activeForm, setActiveForm] = useState<"login" | "register">("login");
+    const [swipeDirection, setSwipeDirection] = useState<1 | -1>(1);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
+    const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
+        width: undefined,
+        height: undefined,
+    });
     const loginButtonRef = useRef<HTMLButtonElement | null>(null);
+    const innerContainerRef = useRef<HTMLDivElement | null>(null);
     const form = useForm({
         email: "",
         password: "",
@@ -56,7 +82,16 @@ export default function SideVar() {
         return () => window.clearTimeout(timer);
     }, [isOpenLoginModal]);
 
-    const InputTextBoxProps: InputTextBoxProps[] = [
+    // もし一個目の高さを設定する場合
+    useLayoutEffect(() => {
+
+        const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
+        const height = firstChild?.offsetHeight && firstChild.offsetHeight;
+        setLoginModalSize((prev) => ({ ...prev, height }));
+        
+    }, [activeForm, isRenderedLoginModal]);
+
+    const LoginTextBoxProps: InputTextBoxProps[] = [
         {
             value: form.data.email,
             placeholder: "user@example.com",
@@ -73,7 +108,17 @@ export default function SideVar() {
         },
     ];
 
-    const InputTextButtonProps: InputTextButtonProps[] = [
+    const showRegisterForm = () => {
+        setSwipeDirection(1);
+        setActiveForm("register");
+    };
+
+    const showLoginForm = () => {
+        setSwipeDirection(-1);
+        setActiveForm("login");
+    };
+
+    const LoginTextButtonProps: InputTextButtonProps[] = [
         {
             label: "ログイン",
             sabLabel: null,
@@ -86,23 +131,69 @@ export default function SideVar() {
                     },
                 }),
             isSubmit: true,
-            icon: (<FiLogIn />)
+            icon: <FiLogIn />,
         },
         {
             label: null,
             sabLabel: null,
+            onClick: showRegisterForm,
+            isSubmit: false,
+            icon: "swap",
+        },
+    ];
+
+    const RegisterTextBoxProps: InputTextBoxProps[] = [
+        {
+            value: form.data.email,
+            placeholder: "user@example.com",
+            type: "email",
+            required: true,
+            onChange: (value) => form.setData("email", value),
+        },
+        {
+            value: form.data.password,
+            placeholder: "password",
+            type: "password",
+            required: true,
+            onChange: (value) => form.setData("password", value),
+        },
+    ];
+
+    const RegisterTextButtonProps: InputTextButtonProps[] = [
+        {
+            label: "新規登録",
+            sabLabel: null,
             onClick: () =>
-                form.post("/login", {
+                form.post("/register", {
                     preserveState: true,
                     replace: true,
                     onSuccess: () => {
-                        console.log("login success");
+                        console.log("register success");
                     },
                 }),
             isSubmit: true,
-            icon: "swap"
+            icon: <FiLogIn />,
+        },
+        {
+            label: null,
+            sabLabel: null,
+            onClick: showLoginForm,
+            isSubmit: false,
+            icon: "swap",
         },
     ];
+    const currentForm =
+        activeForm === "login"
+            ? {
+                  key: "login",
+                  inputList: LoginTextBoxProps,
+                  buttonList: LoginTextButtonProps,
+              }
+            : {
+                  key: "register",
+                  inputList: RegisterTextBoxProps,
+                  buttonList: RegisterTextButtonProps,
+              };
 
     return (
         <div className="flex-1 sticky border-l border-(--color-dark)">
@@ -133,11 +224,35 @@ export default function SideVar() {
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
+                                        title="Login"
+                                        drawingArea={loginModalSize}
                                     >
-                                        <TextInputBox
-                                            inputList={InputTextBoxProps}
-                                            buttonList={InputTextButtonProps}
-                                        />
+                                        <div ref={innerContainerRef} className="relative">
+                                            <AnimatePresence
+                                                custom={swipeDirection}
+                                                initial={false}
+                                                mode="wait"
+                                            >
+                                                <motion.div
+                                                    key={currentForm.key}
+                                                    custom={swipeDirection}
+                                                    variants={formSwipeVariants}
+                                                    initial="initial"
+                                                    animate="animate"
+                                                    exit="exit"
+                                                    transition={{
+                                                        opacity: { duration: 0.18 },
+                                                        y: swipeAnimation,
+                                                    }}
+                                                    className="w-full"
+                                                >
+                                                    <TextInputBox
+                                                        inputList={currentForm.inputList}
+                                                        buttonList={currentForm.buttonList}
+                                                    />
+                                                </motion.div>
+                                            </AnimatePresence>
+                                        </div>
                                     </SerifBox>
                                 </div>
                             ) : null}
