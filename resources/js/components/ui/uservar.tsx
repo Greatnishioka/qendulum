@@ -208,15 +208,14 @@ export default function SideVar() {
                                 ログイン
                             </button>
                             {isRenderedLoginModal ? (
-                                <div
-                                    className={`${isOpenLoginModal ? "opacity-100" : "pointer-events-none opacity-0"}`}
-                                >
+                                <div className={isOpenLoginModal ? "" : "pointer-events-none"}>
                                     <SerifBox
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
                                         title={isRegisterForm ? "Register" : "Login"}
                                         drawingArea={loginModalSize}
+                                        animationStartedAt="right"
                                     >
                                         <div ref={innerContainerRef} className="relative">
                                             <AnimatePresence
