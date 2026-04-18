@@ -12,6 +12,34 @@ type props = {
     buttonList: InputTextButtonProps[];
 };
 
+function getDefaultButtonColors(index: number) {
+    if (index === 0) {
+        return {
+            color: "var(--color-turquoise)",
+            disabledColor: "#666666",
+        };
+    }
+
+    if (index === 1) {
+        return {
+            color: "#E7B84A",
+            disabledColor: "#8F8F8F",
+        };
+    }
+
+    if (index === 2) {
+        return {
+            color: "#DC3131",
+            disabledColor: "#C1C1C1",
+        };
+    }
+
+    return {
+        color: "var(--color-turquoise)",
+        disabledColor: "#666666",
+    };
+}
+
 // アイコンの種類を定義。別ファイルで型定義としても使用するので、配列としてもエクスポートする
 export const iconTypes = ["search", "clear", "swap"] as const;
 
@@ -112,9 +140,12 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                 {/* todo: この実装はきしょいので要修正 */}
                 <div className="flex p-1">
                     {buttonList.map((button, index) => {
-                        const isSearchButton = index === 0;
-                        const isFuzzyButton = index === 1;
-                        const isClearButton = index === 2;
+                        const isFirstButton = index === 0;
+                        const hasLeadingOverlap = index > 0;
+                        const defaultColors = getDefaultButtonColors(index);
+                        const backgroundColor = button.disabled
+                            ? (button.disabledColor ?? defaultColors.disabledColor)
+                            : (button.color ?? defaultColors.color);
 
                         return (
                             <button
@@ -124,36 +155,40 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                                 }
                                 type={button.isSubmit ? "submit" : "button"}
                                 disabled={button.disabled}
+                                style={{ backgroundColor, zIndex: buttonList.length - index }}
                                 className={[
                                     "group relative py-2 pr-4 text-white transition-colors duration-200",
-                                    isSearchButton
-                                        ? "z-40 rounded-r-full bg-(--color-turquoise) disabled:bg-[#666666]"
-                                        : "",
-                                    isFuzzyButton
-                                        ? "z-30 rounded-r-full bg-[#E7B84A] pl-6 disabled:bg-[#8F8F8F]"
-                                        : "",
-                                    isClearButton
-                                        ? "z-20 rounded-r-full bg-[#DC3131] pl-6 disabled:bg-[#C1C1C1]"
-                                        : "",
+                                    "rounded-r-full",
+                                    hasLeadingOverlap ? "pl-6" : "",
                                 ].join(" ")}
                             >
-                                {isSearchButton ? (
+                                {isFirstButton ? (
                                     <div className="overflow-hidden h-full aspect-square absolute -translate-x-full top-0">
-                                        <span className=" inset-0 h-[200%] aspect-square rounded-full bg-(--color-turquoise) group-disabled:bg-[#666666] transition-colors duration-200 block"></span>
-                                    </div>
-                                ) : null}
-                                {isFuzzyButton || isClearButton ? (
-                                    <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
                                         <span
-                                            className={`block h-full aspect-square transition-colors duration-200 ${isFuzzyButton ? "bg-[#E7B84A] group-disabled:bg-[#8F8F8F]" : "bg-[#DC3131] group-disabled:bg-[#C1C1C1]"}`}
+                                            style={{ backgroundColor }}
+                                            className="inset-0 h-[200%] aspect-square rounded-full transition-colors duration-200 block"
                                         ></span>
                                     </div>
                                 ) : null}
-                                <div className="flex items-center gap-1">
+                                {hasLeadingOverlap ? (
+                                    <div className="pointer-events-none absolute left-0 top-0 h-full aspect-square -translate-x-1/2 overflow-hidden">
+                                        <span
+                                            style={{ backgroundColor }}
+                                            className="block h-full aspect-square transition-colors duration-200"
+                                        ></span>
+                                    </div>
+                                ) : null}
+                                <div className="flex items-center gap-1 relative">
                                     {isIncludeType(button.icon, iconTypes) ? renderIcon(button.icon) : button.icon}
 
+                                    {button.hoverMassege && (
+                                        <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            {button.hoverMassege}
+                                        </span>
+                                    )}
+
                                     {button.label && (
-                                        <p className={`text-[14px] ${isClearButton ? "" : "mr-2"} whitespace-nowrap`} >
+                                        <p className="mr-2 whitespace-nowrap text-[14px]">
                                             {button.label}
                                         </p>
                                     )}

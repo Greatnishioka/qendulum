@@ -121,6 +121,7 @@ export default function SideVar() {
                         console.log("login success");
                     },
                 }),
+            hoverMassege: "Login",
             isSubmit: true,
             icon: <FiLogIn />,
         },
@@ -128,6 +129,7 @@ export default function SideVar() {
             label: null,
             sabLabel: null,
             onClick: toggleForm,
+            hoverMassege: "新規登録に切り替え",
             isSubmit: false,
             icon: "swap",
         },
@@ -162,6 +164,7 @@ export default function SideVar() {
                         console.log("register success");
                     },
                 }),
+            hoverMassege: "Register",
             isSubmit: true,
             icon: <FiLogIn />,
         },
@@ -169,6 +172,7 @@ export default function SideVar() {
             label: null,
             sabLabel: null,
             onClick: toggleForm,
+            hoverMassege: "ログインに切り替え",
             isSubmit: false,
             icon: "swap",
         },

@@ -14,6 +14,9 @@ export type InputTextButtonProps = {
     onClick: () => void;
     isSubmit: boolean;
     disabled?: boolean;
+    color?: string;
+    disabledColor?: string;
+    hoverMassege?: string;
     // SVGやImageコンポーネントによるアイコン + アイコンタイプ
     icon: React.ReactNode | typeof iconTypes[number];
 };
