@@ -288,9 +288,9 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                                     onClick={
                                         button.isSubmit ? undefined : () => handleButtonClick(button)
                                     }
-                                    onMouseEnter={(event) => openTooltip(event, button.hoverMassege)}
+                                    onMouseEnter={(event) => openTooltip(event, button.hoverMessege)}
                                     onMouseLeave={closeTooltip}
-                                    onFocus={(event) => openTooltip(event, button.hoverMassege)}
+                                    onFocus={(event) => openTooltip(event, button.hoverMessege)}
                                     onBlur={closeTooltip}
                                     type={button.isSubmit ? "submit" : "button"}
                                     disabled={button.disabled}

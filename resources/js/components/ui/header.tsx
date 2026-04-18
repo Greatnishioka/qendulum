@@ -36,6 +36,7 @@ export default function Header({ query = "" }: props) {
                     replace: true,
                 }),
             isSubmit: true,
+            hoverMessege: "Enter",
             disabled: buttonDisabled,
             icon: "search"
         },
@@ -48,6 +49,7 @@ export default function Header({ query = "" }: props) {
                     replace: true,
                 }),
             isSubmit: true,
+            hoverMessege: "Ctrl + Enter",
             disabled: buttonDisabled,
             icon: ""
         },
@@ -56,6 +58,7 @@ export default function Header({ query = "" }: props) {
             sabLabel: null,
             onClick: () => form.setData("query", ""),
             isSubmit: false,
+            hoverMessege: "Ctrl + Backspace",
             disabled: buttonDisabled,
             icon: "clear"
         },
