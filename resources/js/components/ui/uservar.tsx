@@ -215,6 +215,7 @@ export default function SideVar() {
                             {isRenderedLoginModal ? (
                                 <div className={isOpenLoginModal ? "" : "pointer-events-none"}>
                                     <SerifBox
+                                        // ここにエラーメッセージ渡しても問題ないかを要考察
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
