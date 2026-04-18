@@ -27,52 +27,29 @@ type ActiveTooltip = {
     message: string;
 };
 
-function getDefaultButtonColors(index: number) {
-    if (index === 0) {
-        return {
-            color: "var(--color-turquoise)",
-            disabledColor: "#666666",
-        };
-    }
-
-    if (index === 1) {
-        return {
-            color: "#E7B84A",
-            disabledColor: "#8F8F8F",
-        };
-    }
-
-    if (index === 2) {
-        return {
-            color: "#DC3131",
-            disabledColor: "#C1C1C1",
-        };
-    }
-
-    return {
-        color: "var(--color-turquoise)",
-        disabledColor: "#666666",
-    };
-}
-
 // アイコンの種類を定義。別ファイルで型定義としても使用するので、配列としてもエクスポートする
 export const iconTypes = ["search", "clear", "swap"] as const;
 
-// アイコンをアイコン名で引けるように
-function renderIcon(icon: typeof iconTypes[number]): React.ReactNode {
-    if (!iconTypes.includes(icon as typeof iconTypes[number])) return (<></>);
+const defaultButtonColors = [
+    {
+        color: "var(--color-turquoise)",
+        disabledColor: "#666666",
+    },
+    {
+        color: "#E7B84A",
+        disabledColor: "#8F8F8F",
+    },
+    {
+        color: "#DC3131",
+        disabledColor: "#C1C1C1",
+    },
+] as const;
 
-    switch (icon) {
-        case iconTypes[0]: // "search"
-            return (<IoSearch />);
-        case iconTypes[1]: // "clear"
-            return (<RxCross2 />);
-        case iconTypes[2]: // "swap"
-            return (<LiaExchangeAltSolid className="rotate-90" />);
-        default:
-            return <></>;
-    }
-}
+const iconMap = {
+    search: <IoSearch />,
+    clear: <RxCross2 />,
+    swap: <LiaExchangeAltSolid className="rotate-90" />,
+} satisfies Record<typeof iconTypes[number], React.ReactNode>;
 
 function TooltipPortal({ anchorEl, message }: ActiveTooltip) {
     const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -80,7 +57,7 @@ function TooltipPortal({ anchorEl, message }: ActiveTooltip) {
         top: number;
         left: number;
         visible: boolean;
-        placement: "top" | "bottom";
+        placement: "top" | "bottom"; // Extractした型にすることも考えたが、文脈的にあちらと共有していないので、これで
     }>({
         top: 0,
         left: 0,
@@ -277,7 +254,7 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                         {buttonList.map((button, index) => {
                             const isFirstButton = index === 0;
                             const hasLeadingOverlap = index > 0;
-                            const defaultColors = getDefaultButtonColors(index);
+                            const defaultColors = defaultButtonColors[index] ?? defaultButtonColors[0];
                             const backgroundColor = button.disabled
                                 ? (button.disabledColor ?? defaultColors.disabledColor)
                                 : (button.color ?? defaultColors.color);
@@ -288,9 +265,9 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                                     onClick={
                                         button.isSubmit ? undefined : () => handleButtonClick(button)
                                     }
-                                    onMouseEnter={(event) => openTooltip(event, button.hoverMessege)}
+                                    onMouseEnter={(event) => openTooltip(event, button.hoverMessage)}
                                     onMouseLeave={closeTooltip}
-                                    onFocus={(event) => openTooltip(event, button.hoverMessege)}
+                                    onFocus={(event) => openTooltip(event, button.hoverMessage)}
                                     onBlur={closeTooltip}
                                     type={button.isSubmit ? "submit" : "button"}
                                     disabled={button.disabled}
@@ -318,7 +295,7 @@ export default function TextInputBox({ inputList, buttonList }: props) {
                                         </div>
                                     ) : null}
                                     <div className="flex items-center gap-1 relative">
-                                        {isIncludeType(button.icon, iconTypes) ? renderIcon(button.icon) : button.icon}
+                                        {isIncludeType(button.icon, iconTypes) ? iconMap[button.icon] : button.icon}
 
                                         {button.label && (
                                             <p className="mr-2 whitespace-nowrap text-[14px]">

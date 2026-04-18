@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/react";
-import { useLayoutEffect, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
@@ -32,10 +32,10 @@ export default function SideVar() {
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
     const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
-    const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
-        width: undefined,
-        height: undefined,
-    });
+    // const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
+    //     width: undefined,
+    //     height: undefined,
+    // });
     const loginButtonRef = useRef<HTMLButtonElement | null>(null);
     const innerContainerRef = useRef<HTMLDivElement | null>(null);
     const form = useForm({
@@ -82,11 +82,11 @@ export default function SideVar() {
     }, [isOpenLoginModal]);
 
     // もし一個目の高さを設定する場合
-    useLayoutEffect(() => {
-        const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
-        const height = firstChild?.offsetHeight && firstChild.offsetHeight;
-        setLoginModalSize((prev) => ({ ...prev, height }));
-    }, [isRegisterForm, isRenderedLoginModal]);
+    // useLayoutEffect(() => {
+    //     const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
+    //     const height = firstChild?.offsetHeight && firstChild.offsetHeight;
+    //     setLoginModalSize((prev) => ({ ...prev, height }));
+    // }, [isRegisterForm, isRenderedLoginModal]);
 
     const LoginTextBoxProps: InputTextBoxProps[] = [
         {
@@ -121,7 +121,7 @@ export default function SideVar() {
                         console.log("login success");
                     },
                 }),
-            hoverMessege: "Login",
+            hoverMessage: "Login",
             isSubmit: true,
             icon: <FiLogIn />,
         },
@@ -129,7 +129,7 @@ export default function SideVar() {
             label: null,
             sabLabel: null,
             onClick: toggleForm,
-            hoverMessege: "新規登録に切り替え",
+            hoverMessage: "新規登録に切り替え",
             isSubmit: false,
             icon: "swap",
         },
@@ -164,7 +164,7 @@ export default function SideVar() {
                         console.log("register success");
                     },
                 }),
-            hoverMessege: "Register",
+            hoverMessage: "Register",
             color: "#E47C48",
             isSubmit: true,
             icon: <FiLogIn />,
@@ -173,7 +173,7 @@ export default function SideVar() {
             label: null,
             sabLabel: null,
             onClick: toggleForm,
-            hoverMessege: "ログインに切り替え",
+            hoverMessage: "ログインに切り替え",
             isSubmit: false,
             icon: "swap",
         },
@@ -192,7 +192,7 @@ export default function SideVar() {
               };
 
     return (
-        <div className="flex-1 sticky border-l border-(--color-dark)">
+        <div className="sticky top-19.5 flex-1 self-start border-l border-(--color-dark)">
             <div className="p-4 bg-(--color-light)">
                 <div className="p-3 border-stripes border border-(--color-dark)">
                     <div className="px-3 py-12 bg-white border border-(--color-dark) min-h-56 flex flex-col items-center justify-center gap-9">
@@ -200,7 +200,7 @@ export default function SideVar() {
                             <h3 className="text-2xl font-bold text-[#BDBECA]">
                                 ログインしていません
                             </h3>
-                            <p className="font-semibold text-[#90919C]">
+                            <p className="font-semibold text-[#90919C] text-sm">
                                 お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
                             </p>
                         </div>
@@ -219,7 +219,6 @@ export default function SideVar() {
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
                                         title={isRegisterForm ? "Register" : "Login"}
-                                        drawingArea={loginModalSize}
                                         animationStartedAt="right"
                                     >
                                         <div ref={innerContainerRef} className="relative">

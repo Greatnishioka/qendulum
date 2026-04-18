@@ -7,7 +7,8 @@ type props = {
 // 状態を持たないのであれば、別に下層コンポーネントを作らなくてもパフォーマンスは問題ないのでは？
 export default function SideVar({ propaties }: props) {
     return (
-        <nav className="flex-1 sticky overflow-hidden">
+        // 動的にヘッダーの高さが変わるようにしたら、topも動的に変える
+        <nav className="sticky top-19.5 flex-1 self-start">
             <ul className="group">
                 {propaties.map((propaty) => {
                     return (

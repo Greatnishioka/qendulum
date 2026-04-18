@@ -1,5 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
 
+type animationStartedAt = "top" | "bottom" | "left" | "right";
+
+const transformOriginMap: Record<animationStartedAt, string> = {
+    top: "50% 0%",
+    bottom: "50% 100%",
+    left: "0% 50%",
+    right: "100% 50%",
+};
+
 type props = {
     children: React.ReactNode;
     setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,30 +23,10 @@ type props = {
         width?: number;
         height?: number;
     };
-    animationStartedAt: "top" | "bottom" | "left" | "right";
+    animationStartedAt: animationStartedAt;
 };
 
 export default function SerifBox({ children, setIsOpenModal, isOpen, title, position, drawingArea, animationStartedAt }: props) {
-
-    let animation = null;
-
-    // animationがどこから始まるか
-    switch (animationStartedAt) {
-        case "top":
-            animation = { transformOrigin: "50% 0%" };
-            break;
-        case "bottom":
-            animation = { transformOrigin: "50% 100%" };
-            break;
-        case "left":
-            animation = { transformOrigin: "0% 50%" };
-            break;
-        case "right":
-            animation = { transformOrigin: "100% 50%" };
-            break;
-    }
-
-
 
     return (
         <div
@@ -47,7 +36,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
             <div className="flex -translate-x-full -translate-y-1/2 justify-center items-center">
                 <motion.div
                     className={`flex justify-center items-center ${animationStartedAt === "left" && "flex-row-reverse"}`}
-                    style={animation}
+                    style={{ transformOrigin: transformOriginMap[animationStartedAt] }}
                     initial={{
                         opacity: 0,
                         y: 0,
@@ -71,7 +60,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                         className="
                         relative overflow-hidden rounded-2xl border border-(--color-dark) qendulum-shadow
                     "
-                        style={animation}
+                        style={{ transformOrigin: transformOriginMap[animationStartedAt] }}
                         initial={{
                             x: 8,
                             filter: "blur(1px)",
@@ -87,7 +76,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                     >
                         <div className="relative z-20 py-1.5 px-5 flex justify-between border-b border-(--color-dark) bg-white">
                             <div className="relative min-w-20 h-4.5">
-                                
+
                                 {/* コンポーネント内のタイトル */}
                                 <AnimatePresence mode="wait" initial={false}>
                                     <motion.h3
@@ -121,7 +110,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                         <div className="relative z-10 p-1 bg-white">
                             <div className="rounded-b-2xl rounded-t-sm py-1.5 bg-[#EDEDED] flex items-start justify-center px-8">
                                 <motion.div
-                                    style={{ width: drawingArea?.width, height: drawingArea?.height, ...animation }}
+                                    style={{ width: drawingArea?.width, height: drawingArea?.height, ...{ transformOrigin: transformOriginMap[animationStartedAt] } }}
                                     className={`overflow-hidden ${animationStartedAt === "left" && "rotate-180"}`}
                                     initial={{ opacity: 0.45 }}
                                     animate={{ opacity: isOpen ? 1 : 0.45 }}
@@ -139,7 +128,7 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                         viewBox="0 0 29 14"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        style={animation}
+                        style={{ transformOrigin: transformOriginMap[animationStartedAt] }}
                         initial={{
                             scale: 0.08,
                             x: 2,
