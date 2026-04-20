@@ -1,9 +1,12 @@
 import { useForm } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
+
 import { AnimatePresence, motion } from "motion/react";
+import { FiLogIn } from "react-icons/fi";
+
 import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
-import { FiLogIn } from "react-icons/fi";
+import MessageBox from "../parts/messageBox";
 
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
@@ -31,11 +34,8 @@ export default function SideVar() {
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
     const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
+    const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(null);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
-    // const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
-    //     width: undefined,
-    //     height: undefined,
-    // });
     const loginButtonRef = useRef<HTMLButtonElement | null>(null);
     const innerContainerRef = useRef<HTMLDivElement | null>(null);
     const form = useForm({
@@ -81,27 +81,26 @@ export default function SideVar() {
         return () => window.clearTimeout(timer);
     }, [isOpenLoginModal]);
 
-    // もし一個目の高さを設定する場合
-    // useLayoutEffect(() => {
-    //     const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
-    //     const height = firstChild?.offsetHeight && firstChild.offsetHeight;
-    //     setLoginModalSize((prev) => ({ ...prev, height }));
-    // }, [isRegisterForm, isRenderedLoginModal]);
-
     const LoginTextBoxProps: InputTextBoxProps[] = [
         {
             value: form.data.email,
             placeholder: "user@example.com",
             type: "email",
             required: true,
-            onChange: (value) => form.setData("email", value),
+            onChange: (value) => {
+                setLoginErrorMessage(null);
+                form.setData("email", value);
+            },
         },
         {
             value: form.data.password,
             placeholder: "password",
             type: "password",
             required: true,
-            onChange: (value) => form.setData("password", value),
+            onChange: (value) => {
+                setLoginErrorMessage(null);
+                form.setData("password", value);
+            },
         },
     ];
 
@@ -113,16 +112,26 @@ export default function SideVar() {
         {
             label: "ログイン",
             sabLabel: null,
-            onClick: () =>
+            onClick: () => {
+                setLoginErrorMessage(null);
+
                 form.post("/login", {
                     preserveState: true,
                     replace: true,
                     onSuccess: () => {
-                        console.log("login success");
+                        setIsOpenLoginModal(false);
+                        setLoginErrorMessage(null);
+                        form.reset("password");
+                        form.clearErrors();
                     },
-                }),
+                    onError: (errors) => {
+                        setLoginErrorMessage(typeof errors.message === "string" ? errors.message : "エラーが発生しました。");
+                    },
+                });
+            },
             hoverMessage: "Login",
             isSubmit: true,
+            disabled: form.processing,
             icon: <FiLogIn />,
         },
         {
@@ -131,6 +140,7 @@ export default function SideVar() {
             onClick: toggleForm,
             hoverMessage: "新規登録に切り替え",
             isSubmit: false,
+            disabled: form.processing,
             icon: "swap",
         },
     ];
@@ -181,15 +191,15 @@ export default function SideVar() {
     const currentForm =
         !isRegisterForm
             ? {
-                  key: "login",
-                  inputList: LoginTextBoxProps,
-                  buttonList: LoginTextButtonProps,
-              }
+                key: "login",
+                inputList: LoginTextBoxProps,
+                buttonList: LoginTextButtonProps,
+            }
             : {
-                  key: "register",
-                  inputList: RegisterTextBoxProps,
-                  buttonList: RegisterTextButtonProps,
-              };
+                key: "register",
+                inputList: RegisterTextBoxProps,
+                buttonList: RegisterTextButtonProps,
+            };
 
     return (
         <div className="sticky top-19.5 flex-1 self-start border-l border-(--color-dark)">
@@ -208,19 +218,31 @@ export default function SideVar() {
                             <button
                                 ref={loginButtonRef}
                                 className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
-                                onClick={() => setIsOpenLoginModal(true)}
+                                onClick={() => {
+                                    setLoginErrorMessage(null);
+                                    form.clearErrors();
+                                    setIsOpenLoginModal(true);
+                                }}
                             >
                                 ログイン
                             </button>
                             {isRenderedLoginModal ? (
                                 <div className={isOpenLoginModal ? "" : "pointer-events-none"}>
                                     <SerifBox
-                                        // ここにエラーメッセージ渡しても問題ないかを要考察
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
                                         isOpen={isOpenLoginModal}
+                                        disableClose={form.processing}
                                         title={isRegisterForm ? "Register" : "Login"}
                                         animationStartedAt="right"
+                                        messageBox={
+                                            loginErrorMessage ? (
+                                                <MessageBox
+                                                    messageType="error"
+                                                    message={loginErrorMessage}
+                                                />
+                                            ) : null
+                                        }
                                     >
                                         <div ref={innerContainerRef} className="relative">
                                             <AnimatePresence

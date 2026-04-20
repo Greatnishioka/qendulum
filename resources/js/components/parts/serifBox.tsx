@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
+import React from "react";
 
 type animationStartedAt = "top" | "bottom" | "left" | "right";
 
@@ -13,6 +14,7 @@ type props = {
     children: React.ReactNode;
     setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
     isOpen: boolean;
+    disableClose?: boolean;
     title: string;
     position: {
         top: number;
@@ -24,9 +26,22 @@ type props = {
         height?: number;
     };
     animationStartedAt: animationStartedAt;
+    messageBox?: React.ReactNode;
 };
 
-export default function SerifBox({ children, setIsOpenModal, isOpen, title, position, drawingArea, animationStartedAt }: props) {
+// このコンポーネントは枠だけ準備して、jsxを子コンポーネントとして実装しています。
+// そのため、子コンポーネントで起こったエラー(例えば、認証用のUIを提供する枠として利用した場合、そのUIで起こったエラー)用のmessageBoxをpropsで受け取るようにしています。
+export default function SerifBox({
+    children,
+    setIsOpenModal,
+    isOpen,
+    disableClose = false,
+    title,
+    position,
+    drawingArea,
+    animationStartedAt,
+    messageBox,
+}: props) {
 
     return (
         <div
@@ -56,6 +71,9 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                         },
                     }}
                 >
+                    <div className="absolute -top-8 z-10">
+                        {messageBox}
+                    </div>
                     <motion.div
                         className="
                         relative overflow-hidden rounded-2xl border border-(--color-dark) qendulum-shadow
@@ -91,7 +109,12 @@ export default function SerifBox({ children, setIsOpenModal, isOpen, title, posi
                                     </motion.h3>
                                 </AnimatePresence>
                             </div>
-                            <button type="button" onClick={() => setIsOpenModal(false)} className="">
+                            <button
+                                type="button"
+                                onClick={() => setIsOpenModal(false)}
+                                disabled={disableClose}
+                                className={disableClose ? "cursor-not-allowed opacity-60" : ""}
+                            >
                                 <svg
                                     width="14"
                                     height="14"
