@@ -62,7 +62,7 @@ class LoginRequest extends FormRequest
         $firstErrorMessage = $validator->errors()->first();
 
         throw ValidationException::withMessages([
-            'message' => $firstErrorMessage,
+            'email' => $firstErrorMessage,
         ]);
     }
 

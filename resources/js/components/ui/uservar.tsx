@@ -34,7 +34,6 @@ export default function SideVar() {
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
     const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
-    const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(null);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
     const loginButtonRef = useRef<HTMLButtonElement | null>(null);
     const innerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -42,6 +41,7 @@ export default function SideVar() {
         email: "",
         password: "",
     });
+    const loginErrorMessage = typeof form.errors.email === "string" ? form.errors.email : null;
 
     useEffect(() => {
         function updateLoginModalPosition() {
@@ -88,7 +88,7 @@ export default function SideVar() {
             type: "email",
             required: true,
             onChange: (value) => {
-                setLoginErrorMessage(null);
+                form.clearErrors("email");
                 form.setData("email", value);
             },
         },
@@ -98,7 +98,7 @@ export default function SideVar() {
             type: "password",
             required: true,
             onChange: (value) => {
-                setLoginErrorMessage(null);
+                form.clearErrors("email");
                 form.setData("password", value);
             },
         },
@@ -113,19 +113,18 @@ export default function SideVar() {
             label: "ログイン",
             sabLabel: null,
             onClick: () => {
-                setLoginErrorMessage(null);
+                form.clearErrors("email");
 
                 form.post("/login", {
                     preserveState: true,
                     replace: true,
                     onSuccess: () => {
                         setIsOpenLoginModal(false);
-                        setLoginErrorMessage(null);
                         form.reset("password");
                         form.clearErrors();
                     },
                     onError: (errors) => {
-                        setLoginErrorMessage(typeof errors.message === "string" ? errors.message : "エラーが発生しました。");
+                        console.log("login error", errors);
                     },
                 });
             },
@@ -219,7 +218,6 @@ export default function SideVar() {
                                 ref={loginButtonRef}
                                 className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
                                 onClick={() => {
-                                    setLoginErrorMessage(null);
                                     form.clearErrors();
                                     setIsOpenLoginModal(true);
                                 }}

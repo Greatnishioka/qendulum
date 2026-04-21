@@ -62,7 +62,7 @@ class LoginAction
             $authenticatedUser = $this->loginUseCase->__invoke($request->toInputData());
         } catch (InvalidCredentialsException) {
             throw ValidationException::withMessages([
-                'message' => 'メールアドレスまたはパスワードが正しくありません。',
+                'email' => 'メールアドレスまたはパスワードが正しくありません。',
             ]);
         }
 
