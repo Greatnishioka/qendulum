@@ -87,20 +87,14 @@ export default function SideVar() {
             placeholder: "user@example.com",
             type: "email",
             required: true,
-            onChange: (value) => {
-                form.clearErrors("email");
-                form.setData("email", value);
-            },
+            onChange: (value) => form.setData("email", value),
         },
         {
             value: form.data.password,
             placeholder: "password",
             type: "password",
             required: true,
-            onChange: (value) => {
-                form.clearErrors("email");
-                form.setData("password", value);
-            },
+            onChange: (value) => form.setData("password", value),
         },
     ];
 

@@ -95,35 +95,20 @@ export default function MessageBox({ messageType, message, className }: props) {
                     duration: isVisible ? 0.44 : 0.26,
                     ease: isVisible ? [0.16, 1, 0.3, 1] : [0.4, 0, 1, 1],
                 }}
-                className={`px-4 border-stripes-${messageType} border ${theme.border} ${theme.bg} rounded-md`}
+                className="flex flex-col items-center"
             >
-                <div className={`min-w-75 ${theme.bg} border-x ${theme.border} px-4 py-2`}>
-                    <p className={`text-xs ${theme.text} font-semibold text-center`}>
-                        {message}
-                    </p>
+                <div className={`px-4 border-stripes-${messageType} border ${theme.border} ${theme.bg} rounded-md`}>
+                    <div className={`min-w-75 ${theme.bg} border-x ${theme.border} px-4 py-2`}>
+                        <p className={`text-xs ${theme.text} font-semibold text-center`}>
+                            {message}
+                        </p>
+                    </div>
                 </div>
+                <svg className="relative -top-0.5" width="21" height="17" viewBox="0 0 21 17" xmlns="http://www.w3.org/2000/svg">
+                    <path className={theme.lightFill} d="M0 0L9.52628 16.5C9.91118 17.1667 10.8734 17.1667 11.2583 16.5L20.7846 0H0Z" />
+                    <path className={theme.fill} d="M0.577148 1L9.52567 16.5C9.91057 17.1667 10.8732 17.1667 11.2581 16.5L20.2066 1H19.0525L10.3919 16L1.73127 1H0.577148Z" />
+                </svg>
             </motion.div>
-            <motion.svg
-                className="relative -top-0.5"
-                width="21"
-                height="17"
-                viewBox="0 0 21 17"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ transformOrigin: "50% 0%" }}
-                initial={{ scale: 0.08, y: -2, opacity: 0 }}
-                animate={{
-                    scale: isVisible ? 1 : 0.08,
-                    y: isVisible ? 0 : -2,
-                    opacity: isVisible ? 1 : 0,
-                }}
-                transition={{
-                    duration: isVisible ? 0.42 : 0.24,
-                    ease: isVisible ? [0.16, 1, 0.3, 1] : [0.4, 0, 1, 1],
-                }}
-            >
-                <path className={theme.lightFill} d="M0 0L9.52628 16.5C9.91118 17.1667 10.8734 17.1667 11.2583 16.5L20.7846 0H0Z" />
-                <path className={theme.fill} d="M0.577148 1L9.52567 16.5C9.91057 17.1667 10.8732 17.1667 11.2581 16.5L20.2066 1H19.0525L10.3919 16L1.73127 1H0.577148Z" />
-            </motion.svg>
         </motion.div>
     );
 }
