@@ -13,6 +13,7 @@ const transformOriginMap = {
 const tailLength = 29;
 const tailHalfWidth = 7;
 const tailSeamOverlap = 4;
+const tailTipRoundLength = 10;
 const boxCornerRadius = 16;
 
 // ============ type ============
@@ -47,6 +48,19 @@ type Props = {
     animationStartedAt: AnimationStartedAt;
     messageBox?: React.ReactNode;
 };
+
+function getPointAwayFromTip(tip: Point, endpoint: Point, distance: number): Point {
+    const direction = {
+        x: endpoint.x - tip.x,
+        y: endpoint.y - tip.y,
+    };
+    const length = Math.hypot(direction.x, direction.y);
+
+    return {
+        x: tip.x + (direction.x / length) * distance,
+        y: tip.y + (direction.y / length) * distance,
+    };
+}
 
 function getInitialBoxPosition(
     anchor: Point,
@@ -90,6 +104,37 @@ function getRoundedRectSignedDistance(
     return (
         Math.hypot(Math.max(q.x, 0), Math.max(q.y, 0)) + Math.min(Math.max(q.x, q.y), 0) - radius
     );
+}
+
+/** 本体内部の点から外部の点へ向かう線分と、角丸外周との交点を返す。 */
+function getRoundedRectExitPoint(
+    insidePoint: Point,
+    outsidePoint: Point,
+    boxPosition: Point,
+    boxSize: Size,
+): Point {
+    const radius = Math.min(boxCornerRadius, boxSize.width / 2, boxSize.height / 2);
+    let insideRatio = 0;
+    let outsideRatio = 1;
+
+    for (let index = 0; index < 24; index += 1) {
+        const ratio = (insideRatio + outsideRatio) / 2;
+        const point = {
+            x: insidePoint.x + (outsidePoint.x - insidePoint.x) * ratio,
+            y: insidePoint.y + (outsidePoint.y - insidePoint.y) * ratio,
+        };
+
+        if (getRoundedRectSignedDistance(point, boxPosition, boxSize, radius) > 0) {
+            outsideRatio = ratio;
+        } else {
+            insideRatio = ratio;
+        }
+    }
+
+    return {
+        x: insidePoint.x + (outsidePoint.x - insidePoint.x) * outsideRatio,
+        y: insidePoint.y + (outsidePoint.y - insidePoint.y) * outsideRatio,
+    };
 }
 
 /** 本体中心からアンカーへ向かう線と、角丸長方形の外周との交点・法線を返す。 */
@@ -291,10 +336,24 @@ export default function SerifBox({
             x: attachment.x + unitDirection.x * tailLength,
             y: attachment.y + unitDirection.y * tailLength,
         };
+        const firstTipCurvePoint = getPointAwayFromTip(tip, first, tailTipRoundLength);
+        const secondTipCurvePoint = getPointAwayFromTip(tip, second, tailTipRoundLength);
+        const fillPath =
+            `M ${first.x} ${first.y} ` +
+            `L ${firstTipCurvePoint.x} ${firstTipCurvePoint.y} ` +
+            `Q ${tip.x} ${tip.y} ${secondTipCurvePoint.x} ${secondTipCurvePoint.y} ` +
+            `L ${second.x} ${second.y}`;
+        const firstOutlinePoint = getRoundedRectExitPoint(first, tip, boxPosition, boxSize);
+        const secondOutlinePoint = getRoundedRectExitPoint(second, tip, boxPosition, boxSize);
+        const outlinePath =
+            `M ${firstOutlinePoint.x} ${firstOutlinePoint.y} ` +
+            `L ${firstTipCurvePoint.x} ${firstTipCurvePoint.y} ` +
+            `Q ${tip.x} ${tip.y} ${secondTipCurvePoint.x} ${secondTipCurvePoint.y} ` +
+            `L ${secondOutlinePoint.x} ${secondOutlinePoint.y}`;
 
         return {
-            fill: `M ${first.x} ${first.y} L ${tip.x} ${tip.y} L ${second.x} ${second.y} Z`,
-            outline: `M ${first.x} ${first.y} L ${tip.x} ${tip.y} L ${second.x} ${second.y}`,
+            fill: `${fillPath} Z`,
+            outline: outlinePath,
         };
     }, [anchor, boxPosition, boxSize]);
 
