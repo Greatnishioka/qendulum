@@ -11,6 +11,9 @@ const transformOriginMap = {
 } as const;
 
 const tailLength = 29;
+const tailHalfWidth = 7;
+const tailSeamOverlap = 4;
+const boxCornerRadius = 16;
 
 // ============ type ============
 
@@ -69,33 +72,139 @@ function getInitialBoxPosition(
     }
 }
 
-/** 本体の中心からアンカーへ伸ばした線と、本体の外周との交点を返す。 */
-function getTailBase(boxPosition: Point, boxSize: Size, anchor: Point) {
+function getRoundedRectSignedDistance(
+    point: Point,
+    boxPosition: Point,
+    boxSize: Size,
+    radius: number,
+) {
     const center = {
         x: boxPosition.x + boxSize.width / 2,
         y: boxPosition.y + boxSize.height / 2,
     };
+    const q = {
+        x: Math.abs(point.x - center.x) - (boxSize.width / 2 - radius),
+        y: Math.abs(point.y - center.y) - (boxSize.height / 2 - radius),
+    };
+
+    return (
+        Math.hypot(Math.max(q.x, 0), Math.max(q.y, 0)) + Math.min(Math.max(q.x, q.y), 0) - radius
+    );
+}
+
+/** 本体中心からアンカーへ向かう線と、角丸長方形の外周との交点・法線を返す。 */
+function getRoundedRectAttachment(boxPosition: Point, boxSize: Size, anchor: Point) {
+    const center = {
+        x: boxPosition.x + boxSize.width / 2,
+        y: boxPosition.y + boxSize.height / 2,
+    };
+    const radius = Math.min(boxCornerRadius, boxSize.width / 2, boxSize.height / 2);
+    const innerHalfSize = {
+        x: boxSize.width / 2 - radius,
+        y: boxSize.height / 2 - radius,
+    };
+    const relativeAnchor = {
+        x: anchor.x - center.x,
+        y: anchor.y - center.y,
+    };
+    const closestInnerPoint = {
+        x: Math.min(innerHalfSize.x, Math.max(-innerHalfSize.x, relativeAnchor.x)),
+        y: Math.min(innerHalfSize.y, Math.max(-innerHalfSize.y, relativeAnchor.y)),
+    };
+    const fromInnerPoint = {
+        x: relativeAnchor.x - closestInnerPoint.x,
+        y: relativeAnchor.y - closestInnerPoint.y,
+    };
+    const distanceFromInnerPoint = Math.hypot(fromInnerPoint.x, fromInnerPoint.y);
+
+    // アンカーが外側にある通常時は、そのアンカーから角丸長方形への最短点を使う。
+    // 尻尾方向と外周の法線が一致するため、斜めでも三角形の高さが潰れない。
+    if (distanceFromInnerPoint > radius) {
+        const normal = {
+            x: fromInnerPoint.x / distanceFromInnerPoint,
+            y: fromInnerPoint.y / distanceFromInnerPoint,
+        };
+
+        return {
+            attachment: {
+                x: center.x + closestInnerPoint.x + normal.x * radius,
+                y: center.y + closestInnerPoint.y + normal.y * radius,
+            },
+            normal,
+        };
+    }
+
+    // ドラッグでアンカーと本体が重なった場合は、中心から外周への交点を使う。
     let direction = {
         x: anchor.x - center.x,
         y: anchor.y - center.y,
     };
-    // 本体の中心とアンカーが完全に重なった場合も計算結果を有限値に保つ。
     if (direction.x === 0 && direction.y === 0) {
         direction = { x: 0, y: -1 };
     }
-    const halfWidth = boxSize.width / 2;
-    const halfHeight = boxSize.height / 2;
-    const scale = Math.min(
-        direction.x === 0 ? Number.POSITIVE_INFINITY : halfWidth / Math.abs(direction.x),
-        direction.y === 0 ? Number.POSITIVE_INFINITY : halfHeight / Math.abs(direction.y),
-    );
+    const directionLength = Math.hypot(direction.x, direction.y);
+    const unitDirection = {
+        x: direction.x / directionLength,
+        y: direction.y / directionLength,
+    };
+
+    // SDFを使った二分探索で、直線部分と円弧部分を共通の計算で求める。
+    let insideDistance = 0;
+    let outsideDistance = Math.hypot(boxSize.width, boxSize.height);
+    for (let index = 0; index < 32; index += 1) {
+        const distance = (insideDistance + outsideDistance) / 2;
+        const point = {
+            x: center.x + unitDirection.x * distance,
+            y: center.y + unitDirection.y * distance,
+        };
+        if (getRoundedRectSignedDistance(point, boxPosition, boxSize, radius) > 0) {
+            outsideDistance = distance;
+        } else {
+            insideDistance = distance;
+        }
+    }
+
+    const attachment = {
+        x: center.x + unitDirection.x * outsideDistance,
+        y: center.y + unitDirection.y * outsideDistance,
+    };
+    const epsilon = 0.01;
+    const normalGradient = {
+        x:
+            getRoundedRectSignedDistance(
+                { x: attachment.x + epsilon, y: attachment.y },
+                boxPosition,
+                boxSize,
+                radius,
+            ) -
+            getRoundedRectSignedDistance(
+                { x: attachment.x - epsilon, y: attachment.y },
+                boxPosition,
+                boxSize,
+                radius,
+            ),
+        y:
+            getRoundedRectSignedDistance(
+                { x: attachment.x, y: attachment.y + epsilon },
+                boxPosition,
+                boxSize,
+                radius,
+            ) -
+            getRoundedRectSignedDistance(
+                { x: attachment.x, y: attachment.y - epsilon },
+                boxPosition,
+                boxSize,
+                radius,
+            ),
+    };
+    const normalLength = Math.hypot(normalGradient.x, normalGradient.y);
 
     return {
-        center: {
-            x: center.x + direction.x * scale,
-            y: center.y + direction.y * scale,
+        attachment,
+        normal: {
+            x: normalGradient.x / normalLength,
+            y: normalGradient.y / normalLength,
         },
-        direction,
     };
 }
 
@@ -145,17 +254,47 @@ export default function SerifBox({
         y: initialBoxPosition.y + dragOffset.y,
     };
 
-    const tailPosition = useMemo(() => {
+    const tailPath = useMemo(() => {
         if (!boxSize.width || !boxSize.height) {
             return null;
         }
 
-        const base = getTailBase(boxPosition, boxSize, anchor);
+        const { attachment, normal } = getRoundedRectAttachment(boxPosition, boxSize, anchor);
+
+        let direction = {
+            x: anchor.x - attachment.x,
+            y: anchor.y - attachment.y,
+        };
+        if (direction.x === 0 && direction.y === 0) {
+            direction = normal;
+        }
+
+        const distance = Math.hypot(direction.x, direction.y);
+        const unitDirection = {
+            x: direction.x / distance,
+            y: direction.y / distance,
+        };
+        const baseCenter = {
+            x: attachment.x - normal.x * tailSeamOverlap,
+            y: attachment.y - normal.y * tailSeamOverlap,
+        };
+        const tangent = { x: -normal.y, y: normal.x };
+        const first = {
+            x: baseCenter.x + tangent.x * tailHalfWidth,
+            y: baseCenter.y + tangent.y * tailHalfWidth,
+        };
+        const second = {
+            x: baseCenter.x - tangent.x * tailHalfWidth,
+            y: baseCenter.y - tangent.y * tailHalfWidth,
+        };
+        const tip = {
+            x: attachment.x + unitDirection.x * tailLength,
+            y: attachment.y + unitDirection.y * tailLength,
+        };
 
         return {
-            left: base.center.x,
-            top: base.center.y - 7,
-            angle: (Math.atan2(base.direction.y, base.direction.x) * 180) / Math.PI,
+            fill: `M ${first.x} ${first.y} L ${tip.x} ${tip.y} L ${second.x} ${second.y} Z`,
+            outline: `M ${first.x} ${first.y} L ${tip.x} ${tip.y} L ${second.x} ${second.y}`,
         };
     }, [anchor, boxPosition, boxSize]);
 
@@ -192,42 +331,25 @@ export default function SerifBox({
 
     return (
         <div className="fixed inset-0 z-50 pointer-events-none">
-            <motion.div
+            <motion.svg
                 aria-hidden="true"
-                className="fixed z-30 size-0 overflow-visible pointer-events-none"
-                style={{
-                    left: tailPosition?.left ?? 0,
-                    top: (tailPosition?.top ?? 0) + 7,
-                }}
+                className="fixed inset-0 z-30 size-full overflow-visible pointer-events-none"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: isOpen && tailPosition ? 1 : 0 }}
+                animate={{ opacity: isOpen && tailPath ? 1 : 0 }}
                 transition={{
                     duration: isOpen ? 0.3 : 0.18,
                     ease: "easeOut",
                 }}
             >
-                <svg
-                    className="absolute left-0 -top-[7px] max-w-none overflow-visible"
-                    width="29"
-                    height="14"
-                    viewBox="0 0 29 14"
+                <path d={tailPath?.fill ?? ""} fill="white" />
+                <path
+                    d={tailPath?.outline ?? ""}
                     fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    style={{
-                        transform: `rotate(${tailPosition?.angle ?? 0}deg)`,
-                        transformOrigin: "0px 7px",
-                    }}
-                >
-                    <path
-                        d="M0.000148773 -1.26082e-06L27.1755 4.56428C29.4005 4.93797 29.4005 8.13533 27.1755 8.50902L0.000148202 13.0733L0.000148773 -1.26082e-06Z"
-                        fill="white"
-                    />
-                    <path
-                        d="M0.918945 0.154052L27.1757 4.56414C29.4004 4.93795 29.4004 8.13564 27.1757 8.50945L0.918945 12.9195L0.918945 11.9055L27.0096 7.52312C28.1221 7.33628 28.1221 5.73732 27.0096 5.55047L0.918945 1.16811L0.918945 0.154052Z"
-                        fill="#E3E3E3"
-                    />
-                </svg>
-            </motion.div>
+                    stroke="#E3E3E3"
+                    strokeWidth="1"
+                    strokeLinejoin="round"
+                />
+            </motion.svg>
 
             <motion.div
                 ref={boxRef}
