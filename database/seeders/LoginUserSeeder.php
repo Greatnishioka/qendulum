@@ -25,7 +25,7 @@ class LoginUserSeeder extends Seeder
                 DB::table('user_auth')
                     ->where('id', $userAuth->id)
                     ->update([
-                        'password' => Hash::make('password'),
+                        'password' => Hash::make('!Password'),
                         'email_verified_at' => now(),
                         'updated_at' => now(),
                     ]);

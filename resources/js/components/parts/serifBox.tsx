@@ -1,14 +1,18 @@
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 
-type animationStartedAt = "top" | "bottom" | "left" | "right";
+// ============ config ============
 
-const transformOriginMap: Record<animationStartedAt, string> = {
+const transformOriginMap: Record<string, string> = {
     top: "50% 0%",
     bottom: "50% 100%",
     left: "0% 50%",
     right: "100% 50%",
 };
+
+// ============ type ============
+
+type animationStartedAt = keyof typeof transformOriginMap;
 
 type props = {
     children: React.ReactNode;

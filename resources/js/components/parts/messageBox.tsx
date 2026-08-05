@@ -1,21 +1,9 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
-type props = {
-    messageType: "error" | "success" | "info";
-    message: string;
-    className?: string;
-};
+// ============ config ============
 
-type MessageBoxTheme = {
-    bg: string;
-    border: string;
-    text: string;
-    fill: string;
-    lightFill: string;
-};
-
-const backgroundColorMap: Record<props["messageType"], MessageBoxTheme> = {
+const backgroundColorMap = {
     error: {
         bg: "bg-(--color-error-light)",
         border: "border-(--color-error)",
@@ -36,11 +24,22 @@ const backgroundColorMap: Record<props["messageType"], MessageBoxTheme> = {
         text: "text-(--color-info)",
         fill: "fill-(--color-info)",
         lightFill: "fill-(--color-info-light)",
-    },
+    }
+} as const;
+
+// ============ type ============
+
+type MessageType = keyof typeof backgroundColorMap;
+type MessageBoxTheme = (typeof backgroundColorMap)[MessageType];
+
+type props = {
+    messageType: MessageType;
+    message: string;
+    className?: string;
 };
 
 export default function MessageBox({ messageType, message, className }: props) {
-    const theme = backgroundColorMap[messageType];
+    const theme: MessageBoxTheme = backgroundColorMap[messageType];
     const [isVisible, setIsVisible] = useState(true);
     const [isRendered, setIsRendered] = useState(true);
 
@@ -61,6 +60,7 @@ export default function MessageBox({ messageType, message, className }: props) {
         };
     }, [message, messageType]);
 
+    // DOM から消す。
     if (!isRendered) {
         return null;
     }

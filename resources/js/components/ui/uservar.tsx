@@ -1,4 +1,4 @@
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
 import { AnimatePresence, motion } from "motion/react";
@@ -8,10 +8,39 @@ import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
 import MessageBox from "../parts/messageBox";
 
+type PageProps = {
+    auth: {
+        user: {
+            public_uuid: string | null;
+        } | null;
+    };
+};
+
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
-export default function SideVar() {
+export default function UserVar() {
+
+    const { auth } = usePage<PageProps>().props;
+    const user = auth.user;
+
+    // ログインしている場合はユーザー情報を表示するUIを出す
+    if (user && user.public_uuid) {
+
+        return (
+            <div className="sticky top-19.5 flex-1 self-start border-l border-(--color-dark)">
+                <div className="p-4 bg-(--color-light)">
+                    <div className="p-3 border-stripes border border-(--color-dark)">
+                        <div className="px-3 py-12 bg-white border border-(--color-dark)">
+                            <h3>ログイン中</h3>
+                            <p>{user.public_uuid}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     const animationMs = 250;
     const swipeAnimation = {
         duration: 0.32,
