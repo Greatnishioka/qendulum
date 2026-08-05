@@ -82,7 +82,8 @@ export default function UserVar() {
 
             setLoginModalPosition({
                 top: rect.top + rect.height / 2,
-                left: rect.left - 16,
+                // SerifBoxの尻尾をボタン左端の中央へ接続する
+                left: rect.left,
             });
         }
 
