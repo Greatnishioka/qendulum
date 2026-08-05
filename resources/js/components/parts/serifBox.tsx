@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 
 // ============ config ============
 
@@ -15,6 +15,7 @@ const tailHalfWidth = 7;
 const tailSeamOverlap = 4;
 const tailTipRoundLength = 10;
 const boxCornerRadius = 16;
+const tailRevealRadius = tailLength + 2;
 
 // ============ type ============
 
@@ -30,6 +31,13 @@ type Size = {
     height: number;
 };
 
+type TargetRect = {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+};
+
 type Props = {
     children: React.ReactNode;
     setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,6 +48,7 @@ type Props = {
         top: number;
         left: number;
     };
+    targetRect?: TargetRect;
     // sizeが設定されている場合は、SerifBoxの幅と高さをそれに合わせる。設定されていない場合は内容に合わせる
     drawingArea?: {
         width?: number;
@@ -66,21 +75,28 @@ function getInitialBoxPosition(
     anchor: Point,
     boxSize: Size,
     animationStartedAt: AnimationStartedAt,
+    targetRect?: TargetRect,
 ): Point {
     switch (animationStartedAt) {
         case "left":
-            return { x: anchor.x + tailLength, y: anchor.y - boxSize.height / 2 };
+            return {
+                x: (targetRect ? targetRect.left + targetRect.width : anchor.x) + tailLength,
+                y: anchor.y - boxSize.height / 2,
+            };
         case "top":
-            return { x: anchor.x - boxSize.width / 2, y: anchor.y + tailLength };
+            return {
+                x: anchor.x - boxSize.width / 2,
+                y: (targetRect ? targetRect.top + targetRect.height : anchor.y) + tailLength,
+            };
         case "bottom":
             return {
                 x: anchor.x - boxSize.width / 2,
-                y: anchor.y - tailLength - boxSize.height,
+                y: (targetRect?.top ?? anchor.y) - tailLength - boxSize.height,
             };
         case "right":
         default:
             return {
-                x: anchor.x - tailLength - boxSize.width,
+                x: (targetRect?.left ?? anchor.x) - tailLength - boxSize.width,
                 y: anchor.y - boxSize.height / 2,
             };
     }
@@ -262,6 +278,7 @@ export default function SerifBox({
     disableClose = false,
     title,
     position,
+    targetRect,
     drawingArea,
     animationStartedAt,
     messageBox,
@@ -293,11 +310,22 @@ export default function SerifBox({
         () => ({ x: position.left, y: position.top }),
         [position.left, position.top],
     );
-    const initialBoxPosition = getInitialBoxPosition(anchor, boxSize, animationStartedAt);
+    const initialBoxPosition = getInitialBoxPosition(
+        anchor,
+        boxSize,
+        animationStartedAt,
+        targetRect,
+    );
     const boxPosition = {
         x: initialBoxPosition.x + dragOffset.x,
         y: initialBoxPosition.y + dragOffset.y,
     };
+    const isTailStored =
+        !!targetRect &&
+        boxPosition.x < targetRect.left + targetRect.width &&
+        boxPosition.x + boxSize.width > targetRect.left &&
+        boxPosition.y < targetRect.top + targetRect.height &&
+        boxPosition.y + boxSize.height > targetRect.top;
 
     const tailPath = useMemo(() => {
         if (!boxSize.width || !boxSize.height) {
@@ -354,8 +382,11 @@ export default function SerifBox({
         return {
             fill: `${fillPath} Z`,
             outline: outlinePath,
+            attachment,
         };
     }, [anchor, boxPosition, boxSize]);
+
+    const tailMaskId = `serif-box-tail-mask-${useId().replaceAll(":", "")}`;
 
     const startDragging = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) {
@@ -400,14 +431,37 @@ export default function SerifBox({
                     ease: "easeOut",
                 }}
             >
-                <path d={tailPath?.fill ?? ""} fill="white" />
-                <path
-                    d={tailPath?.outline ?? ""}
-                    fill="none"
-                    stroke="#E3E3E3"
-                    strokeWidth="1"
-                    strokeLinejoin="round"
-                />
+                <defs>
+                    <mask
+                        id={tailMaskId}
+                        maskUnits="userSpaceOnUse"
+                        x="0"
+                        y="0"
+                        width="100%"
+                        height="100%"
+                    >
+                        <motion.circle
+                            cx={tailPath?.attachment.x ?? 0}
+                            cy={tailPath?.attachment.y ?? 0}
+                            initial={false}
+                            animate={{
+                                r: isOpen && !isTailStored ? tailRevealRadius : 0,
+                            }}
+                            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                            fill="white"
+                        />
+                    </mask>
+                </defs>
+                <g mask={`url(#${tailMaskId})`}>
+                    <path d={tailPath?.fill ?? ""} fill="white" />
+                    <path
+                        d={tailPath?.outline ?? ""}
+                        fill="none"
+                        stroke="#E3E3E3"
+                        strokeWidth="1"
+                        strokeLinejoin="round"
+                    />
+                </g>
             </motion.svg>
 
             <motion.div
@@ -436,9 +490,8 @@ export default function SerifBox({
                 <motion.div
                     className="relative overflow-hidden rounded-2xl border border-(--color-dark) qendulum-shadow"
                     style={{ transformOrigin: transformOriginMap[animationStartedAt] }}
-                    initial={{ x: 8, filter: "blur(1px)" }}
+                    initial={{ filter: "blur(1px)" }}
                     animate={{
-                        x: isOpen ? 0 : 8,
                         filter: isOpen ? "blur(0px)" : "blur(1px)",
                     }}
                     transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}

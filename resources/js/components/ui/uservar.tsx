@@ -64,6 +64,12 @@ export default function UserVar() {
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
     const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
     const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
+    const [loginButtonRect, setLoginButtonRect] = useState<{
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    } | null>(null);
     const loginButtonRef = useRef<HTMLButtonElement | null>(null);
     const innerContainerRef = useRef<HTMLDivElement | null>(null);
     const form = useForm({
@@ -82,8 +88,14 @@ export default function UserVar() {
 
             setLoginModalPosition({
                 top: rect.top + rect.height / 2,
-                // SerifBoxの尻尾をボタン左端の中央へ接続する
+                // SerifBoxの尻尾をボタン要素の中心へ向ける
+                left: rect.left + rect.width / 2,
+            });
+            setLoginButtonRect({
+                top: rect.top,
                 left: rect.left,
+                width: rect.width,
+                height: rect.height,
             });
         }
 
@@ -253,6 +265,7 @@ export default function UserVar() {
                                     <SerifBox
                                         setIsOpenModal={setIsOpenLoginModal}
                                         position={loginModalPosition}
+                                        targetRect={loginButtonRect ?? undefined}
                                         isOpen={isOpenLoginModal}
                                         disableClose={form.processing}
                                         title={isRegisterForm ? "Register" : "Login"}
