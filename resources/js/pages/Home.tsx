@@ -1,29 +1,29 @@
 import AppLayout from "@/layouts/AppLayout";
 import type { ArxivFeed } from "@/types/arxivArticlestype";
-import { isNotEmpty } from "@/util/typeGuards";
 
 // components
 import ValuableBookCard from "@/components/ui/vb/valuableBookCard";
 
 type props = {
-    feed: ArxivFeed;
+    // フィードを取得していない場合は空配列が渡ってくる
+    feed: ArxivFeed | [];
 };
 
 export default function Home({ feed }: props) {
+    const entries = Array.isArray(feed) ? [] : feed.entries;
+
     return (
         <AppLayout>
             <section className="mx-auto max-w-4xl">
-                {isNotEmpty(feed) ? (
+                {entries.length > 0 ? (
                     <section className="">
-                        {feed.entries.map((entry) => (
+                        {entries.map((entry) => (
                             <ValuableBookCard key={entry.id} entry={entry} />
                         ))}
                     </section>
-                ) :
-                    <section className="w-full">
-                        
-                    </section>
-                }
+                ) : (
+                    <section className="w-full"></section>
+                )}
             </section>
         </AppLayout>
     );
