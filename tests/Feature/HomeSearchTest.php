@@ -8,6 +8,17 @@ use Tests\TestCase;
 
 class HomeSearchTest extends TestCase
 {
+    public function test_home_returns_home_with_null_feed(): void
+    {
+        $response = $this->get('/');
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('Home')
+                ->where('feed', null));
+    }
+
     /**
      * 仕様:
      * 検索クエリ未指定で検索画面を開いた場合、外部 API は呼び出さず、

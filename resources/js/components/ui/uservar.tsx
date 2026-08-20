@@ -1,72 +1,94 @@
-import { useForm } from "@inertiajs/react";
-import { useEffect, useRef, useState } from "react";
+import { useForm, usePage } from "@inertiajs/react";
+import { useEffect, useState, type ReactNode } from "react";
+
 import { AnimatePresence, motion } from "motion/react";
+import { FiLogIn } from "react-icons/fi";
+
 import SerifBox from "../parts/serifBox";
 import TextInputBox from "../parts/textInputBox";
-import { FiLogIn } from "react-icons/fi";
+import MessageBox from "../parts/messageBox";
+import { useElementRect } from "@/hooks/useElementRect";
+
+type PageProps = {
+    auth: {
+        user: {
+            public_uuid: string | null;
+        } | null;
+    };
+};
 
 // types
 import { type InputTextBoxProps, InputTextButtonProps } from "@/types/parts";
 
-export default function SideVar() {
-    const animationMs = 250;
-    const swipeAnimation = {
-        duration: 0.32,
-        ease: [0.22, 1, 0.36, 1],
-    } as const;
-    const formSwipeVariants = {
-        initial: (isRegisterForm: boolean) => ({
-            opacity: 0,
-            y: isRegisterForm ? "-24%" : "24%",
-        }),
-        animate: {
-            opacity: 1,
-            y: "0%",
-        },
-        exit: (isRegisterForm: boolean) => ({
-            opacity: 0,
-            y: isRegisterForm ? "24%" : "-24%",
-        }),
-    };
+const animationMs = 250;
+const swipeAnimation = {
+    duration: 0.32,
+    ease: [0.22, 1, 0.36, 1],
+} as const;
+const formSwipeVariants = {
+    initial: (isRegisterForm: boolean) => ({
+        opacity: 0,
+        y: isRegisterForm ? "-24%" : "24%",
+    }),
+    animate: {
+        opacity: 1,
+        y: "0%",
+    },
+    exit: (isRegisterForm: boolean) => ({
+        opacity: 0,
+        y: isRegisterForm ? "24%" : "-24%",
+    }),
+};
+
+// ログイン状態にかかわらず共通のガワ
+function UserVarFrame({ children, className }: { children: ReactNode; className?: string }) {
+    return (
+        <div className="sticky top-19.5 flex-1 self-start border-l border-(--color-dark)">
+            <div className="p-4 bg-(--color-light)">
+                <div className="p-3 border-stripes border border-(--color-dark)">
+                    <div
+                        className={`px-3 py-12 bg-white border border-(--color-dark) ${className ?? ""}`}
+                    >
+                        {children}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function UserVar() {
+    const { auth } = usePage<PageProps>().props;
+    const user = auth.user;
+
+    // ログインしている場合はユーザー情報を表示するUIを出す。
+    // ログイン状態で必要なHooksが変わるので、フォーム側は別コンポーネントに分けている。
+    if (user && user.public_uuid) {
+        return (
+            <UserVarFrame>
+                <h3>ログイン中</h3>
+                <p>{user.public_uuid}</p>
+            </UserVarFrame>
+        );
+    }
+
+    return <LoginPanel />;
+}
+
+function LoginPanel() {
     const [isOpenLoginModal, setIsOpenLoginModal] = useState<boolean>(false);
     const [isRenderedLoginModal, setIsRenderedLoginModal] = useState<boolean>(false);
     const [isRegisterForm, setIsRegisterForm] = useState<boolean>(false);
-    const [loginModalPosition, setLoginModalPosition] = useState({ top: 0, left: 0 });
-    // const [loginModalSize, setLoginModalSize] = useState<{ width?: number; height?: number }>({
-    //     width: undefined,
-    //     height: undefined,
-    // });
-    const loginButtonRef = useRef<HTMLButtonElement | null>(null);
-    const innerContainerRef = useRef<HTMLDivElement | null>(null);
+    const {
+        elementRef: loginButtonRef,
+        rect: loginButtonRect,
+        center: loginButtonPosition,
+    } = useElementRect<HTMLButtonElement>();
     const form = useForm({
         email: "",
         password: "",
     });
-
-    useEffect(() => {
-        function updateLoginModalPosition() {
-            if (!loginButtonRef.current) {
-                return;
-            }
-
-            const rect = loginButtonRef.current.getBoundingClientRect();
-
-            setLoginModalPosition({
-                top: rect.top + rect.height / 2,
-                left: rect.left - 16,
-            });
-        }
-
-        updateLoginModalPosition();
-
-        window.addEventListener("resize", updateLoginModalPosition);
-        window.addEventListener("scroll", updateLoginModalPosition, true);
-
-        return () => {
-            window.removeEventListener("resize", updateLoginModalPosition);
-            window.removeEventListener("scroll", updateLoginModalPosition, true);
-        };
-    }, []);
+    const loginErrorMessage = typeof form.errors.email === "string" ? form.errors.email : null;
 
     useEffect(() => {
         if (isOpenLoginModal) {
@@ -81,14 +103,12 @@ export default function SideVar() {
         return () => window.clearTimeout(timer);
     }, [isOpenLoginModal]);
 
-    // もし一個目の高さを設定する場合
-    // useLayoutEffect(() => {
-    //     const firstChild = innerContainerRef.current?.firstElementChild as HTMLElement | null;
-    //     const height = firstChild?.offsetHeight && firstChild.offsetHeight;
-    //     setLoginModalSize((prev) => ({ ...prev, height }));
-    // }, [isRegisterForm, isRenderedLoginModal]);
+    const toggleForm = () => {
+        setIsRegisterForm((prev) => !prev);
+    };
 
-    const LoginTextBoxProps: InputTextBoxProps[] = [
+    // 入力欄はログインと新規登録で共通
+    const textBoxList: InputTextBoxProps[] = [
         {
             value: form.data.email,
             placeholder: "user@example.com",
@@ -105,24 +125,29 @@ export default function SideVar() {
         },
     ];
 
-    const toggleForm = () => {
-        setIsRegisterForm((prev) => !prev);
-    };
-
     const LoginTextButtonProps: InputTextButtonProps[] = [
         {
             label: "ログイン",
             sabLabel: null,
-            onClick: () =>
+            onClick: () => {
+                form.clearErrors("email");
+
                 form.post("/login", {
                     preserveState: true,
                     replace: true,
                     onSuccess: () => {
-                        console.log("login success");
+                        setIsOpenLoginModal(false);
+                        form.reset("password");
+                        form.clearErrors();
                     },
-                }),
+                    onError: (errors) => {
+                        console.log("login error", errors);
+                    },
+                });
+            },
             hoverMessage: "Login",
             isSubmit: true,
+            disabled: form.processing,
             icon: <FiLogIn />,
         },
         {
@@ -131,24 +156,8 @@ export default function SideVar() {
             onClick: toggleForm,
             hoverMessage: "新規登録に切り替え",
             isSubmit: false,
+            disabled: form.processing,
             icon: "swap",
-        },
-    ];
-
-    const RegisterTextBoxProps: InputTextBoxProps[] = [
-        {
-            value: form.data.email,
-            placeholder: "user@example.com",
-            type: "email",
-            required: true,
-            onChange: (value) => form.setData("email", value),
-        },
-        {
-            value: form.data.password,
-            placeholder: "password",
-            type: "password",
-            required: true,
-            onChange: (value) => form.setData("password", value),
         },
     ];
 
@@ -178,83 +187,72 @@ export default function SideVar() {
             icon: "swap",
         },
     ];
-    const currentForm =
-        !isRegisterForm
-            ? {
-                  key: "login",
-                  inputList: LoginTextBoxProps,
-                  buttonList: LoginTextButtonProps,
-              }
-            : {
-                  key: "register",
-                  inputList: RegisterTextBoxProps,
-                  buttonList: RegisterTextButtonProps,
-              };
+
+    const currentForm = isRegisterForm
+        ? { key: "register", buttonList: RegisterTextButtonProps }
+        : { key: "login", buttonList: LoginTextButtonProps };
 
     return (
-        <div className="sticky top-19.5 flex-1 self-start border-l border-(--color-dark)">
-            <div className="p-4 bg-(--color-light)">
-                <div className="p-3 border-stripes border border-(--color-dark)">
-                    <div className="px-3 py-12 bg-white border border-(--color-dark) min-h-56 flex flex-col items-center justify-center gap-9">
-                        <div className="flex flex-col items-center justify-center gap-4">
-                            <h3 className="text-2xl font-bold text-[#BDBECA]">
-                                ログインしていません
-                            </h3>
-                            <p className="font-semibold text-[#90919C] text-sm">
-                                お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
-                            </p>
-                        </div>
-                        <div className="relative mt-4 w-full">
-                            <button
-                                ref={loginButtonRef}
-                                className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
-                                onClick={() => setIsOpenLoginModal(true)}
-                            >
-                                ログイン
-                            </button>
-                            {isRenderedLoginModal ? (
-                                <div className={isOpenLoginModal ? "" : "pointer-events-none"}>
-                                    <SerifBox
-                                        // ここにエラーメッセージ渡しても問題ないかを要考察
-                                        setIsOpenModal={setIsOpenLoginModal}
-                                        position={loginModalPosition}
-                                        isOpen={isOpenLoginModal}
-                                        title={isRegisterForm ? "Register" : "Login"}
-                                        animationStartedAt="right"
-                                    >
-                                        <div ref={innerContainerRef} className="relative">
-                                            <AnimatePresence
-                                                custom={isRegisterForm}
-                                                initial={false}
-                                                mode="wait"
-                                            >
-                                                <motion.div
-                                                    key={currentForm.key}
-                                                    custom={isRegisterForm}
-                                                    variants={formSwipeVariants}
-                                                    initial="initial"
-                                                    animate="animate"
-                                                    exit="exit"
-                                                    transition={{
-                                                        opacity: { duration: 0.18 },
-                                                        y: swipeAnimation,
-                                                    }}
-                                                    className="w-full"
-                                                >
-                                                    <TextInputBox
-                                                        inputList={currentForm.inputList}
-                                                        buttonList={currentForm.buttonList}
-                                                    />
-                                                </motion.div>
-                                            </AnimatePresence>
-                                        </div>
-                                    </SerifBox>
-                                </div>
-                            ) : null}
-                        </div>
-                    </div>
-                </div>
+        <UserVarFrame className="min-h-56 flex flex-col items-center justify-center gap-9">
+            <div className="flex flex-col items-center justify-center gap-4">
+                <h3 className="text-2xl font-bold text-[#BDBECA]">ログインしていません</h3>
+                <p className="font-semibold text-[#90919C] text-sm">
+                    お気に入り登録・ブックマーク・コメントなどを行う場合はログインしてください。
+                </p>
             </div>
-        </div>
+            <div className="relative mt-4 w-full">
+                <button
+                    ref={loginButtonRef}
+                    className="bg-(--color-turquoise) text-white py-4 px-4 rounded-full w-full"
+                    onClick={() => {
+                        form.clearErrors();
+                        setIsOpenLoginModal(true);
+                    }}
+                >
+                    ログイン
+                </button>
+                {isRenderedLoginModal ? (
+                    <div className={isOpenLoginModal ? "" : "pointer-events-none"}>
+                        <SerifBox
+                            setIsOpenModal={setIsOpenLoginModal}
+                            position={loginButtonPosition ?? { top: 0, left: 0 }}
+                            targetRect={loginButtonRect ?? undefined}
+                            isOpen={isOpenLoginModal}
+                            disableClose={form.processing}
+                            title={isRegisterForm ? "Register" : "Login"}
+                            animationStartedAt="right"
+                            messageBox={
+                                loginErrorMessage ? (
+                                    <MessageBox messageType="error" message={loginErrorMessage} />
+                                ) : null
+                            }
+                        >
+                            <div className="relative">
+                                <AnimatePresence custom={isRegisterForm} initial={false} mode="wait">
+                                    <motion.div
+                                        key={currentForm.key}
+                                        custom={isRegisterForm}
+                                        variants={formSwipeVariants}
+                                        initial="initial"
+                                        animate="animate"
+                                        exit="exit"
+                                        transition={{
+                                            opacity: { duration: 0.18 },
+                                            y: swipeAnimation,
+                                        }}
+                                        className="w-full"
+                                    >
+                                        <TextInputBox
+                                            inputList={textBoxList}
+                                            buttonList={currentForm.buttonList}
+                                        />
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </SerifBox>
+                    </div>
+                ) : null}
+            </div>
+        </UserVarFrame>
     );
 }

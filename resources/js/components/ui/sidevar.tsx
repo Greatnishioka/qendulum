@@ -18,17 +18,17 @@ export default function SideVar({ propaties }: props) {
                             border-b border-(--color-dark)
                             "
                             key={propaty.label}
-                            onMouseMove={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                e.currentTarget.style.setProperty(
-                                    "--x",
-                                    `${e.clientX - rect.left}px`,
-                                );
-                                e.currentTarget.style.setProperty(
-                                    "--y",
-                                    `${e.clientY - rect.top}px`,
-                                );
-                            }}
+                            // onMouseMove={(e) => {
+                            //     const rect = e.currentTarget.getBoundingClientRect();
+                            //     e.currentTarget.style.setProperty(
+                            //         "--x",
+                            //         `${e.clientX - rect.left}px`,
+                            //     );
+                            //     e.currentTarget.style.setProperty(
+                            //         "--y",
+                            //         `${e.clientY - rect.top}px`,
+                            //     );
+                            // }}
                         >
                             <a href={propaty.link} className="">
                                 <div className="relative py-4">

@@ -5,24 +5,25 @@ import type { ArxivFeed } from "@/types/arxivArticlestype";
 import ValuableBookCard from "@/components/ui/vb/valuableBookCard";
 
 type props = {
-    feed: ArxivFeed | null;
+    // フィードを取得していない場合は空配列が渡ってくる
+    feed: ArxivFeed | [];
 };
 
 export default function Home({ feed }: props) {
+    const entries = Array.isArray(feed) ? [] : feed.entries;
+
     return (
         <AppLayout>
             <section className="mx-auto max-w-4xl">
-                {feed ? (
+                {entries.length > 0 ? (
                     <section className="">
-                        {feed.entries.map((entry) => (
+                        {entries.map((entry) => (
                             <ValuableBookCard key={entry.id} entry={entry} />
                         ))}
                     </section>
-                ) :
-                    <section className="">
-
-                    </section>
-                }
+                ) : (
+                    <section className="w-full"></section>
+                )}
             </section>
         </AppLayout>
     );

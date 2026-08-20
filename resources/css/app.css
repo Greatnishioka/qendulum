@@ -16,6 +16,13 @@
     --color-dark: #e3e3e3;
     --color-turquoise: #2bb2c6;
     --color-dark-bg: #4B4C5E;
+
+    --color-error: #DF4646;
+    --color-error-light: #FFCDCD;
+    --color-success: #4CAF50;
+    --color-success-light: #C8E6C9;
+    --color-info: #2196F3;
+    --color-info-light: #BBDEFB;
 }
 
 .sidebar-item {
@@ -66,6 +73,36 @@
         #e3e3e3 1px,
         #ffffff 1px,
         #fffffe 4px
+    );
+}
+
+.border-stripes-error {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-error) 0px,
+        var(--color-error) 1px,
+        var(--color-error-light) 1px,
+        var(--color-error-light) 4px
+    );
+}
+
+.border-stripes-success {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-success) 0px,
+        var(--color-success) 1px,
+        var(--color-success-light) 1px,
+        var(--color-success-light) 4px
+    );
+}
+
+.border-stripes-info {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-info) 0px,
+        var(--color-info) 1px,
+        var(--color-info-light) 1px,
+        var(--color-info-light) 4px
     );
 }
 
